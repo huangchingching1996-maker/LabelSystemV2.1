@@ -79,28 +79,66 @@ async function printWithQZ(size, labelHTML, qty) {
   }
 }
 
-// ── Printer Settings UI ──
-function renderPrinterSettings() {
+// ── Printer Settings Page ──
+function renderPrinterSettingsPage() {
   const ps = loadPrinterSettings();
   return `
     <div class="settings-section">
-      <div class="settings-section-title">印表機（QZ Tray）</div>
+      <div class="settings-section-title">QZ Tray 連線</div>
       <div class="settings-row">
-        <span class="settings-label">大標印表機名稱</span>
-        <input class="settings-input" style="flex:1;max-width:200px" type="text"
-          id="printer-large" value="${ps.large}"
+        <span class="settings-label">連線狀態</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="qz-status-dot" style="font-size:16px;line-height:1;">●</span>
+          <span id="qz-status-text" style="font-size:13px;color:var(--text-secondary);">未偵測</span>
+          <button class="btn" style="padding:4px 12px;font-size:12px;" onclick="testQZConnection()">測試連線</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;padding:0 2px;">
+        需先在電腦安裝並執行 QZ Tray，列印才能直接送出至印表機
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">印表機名稱</div>
+      <div class="settings-row">
+        <span class="settings-label">大標印表機</span>
+        <input class="settings-input" style="flex:1;max-width:220px;" type="text"
+          id="printer-large" value="${ps.large}" placeholder="TSC TDP225A"
           oninput="onPrinterChange()">
       </div>
       <div class="settings-row">
-        <span class="settings-label">小標印表機名稱</span>
-        <input class="settings-input" style="flex:1;max-width:200px" type="text"
-          id="printer-small" value="${ps.small}"
+        <span class="settings-label">小標印表機</span>
+        <input class="settings-input" style="flex:1;max-width:220px;" type="text"
+          id="printer-small" value="${ps.small}" placeholder="TSC TDP225A"
           oninput="onPrinterChange()">
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;padding:0 2px">
-        名稱需與 Windows「印表機與掃描器」內完全一致
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;padding:0 2px;line-height:1.6;">
+        名稱需與 Windows「印表機與掃描器」內完全一致（大小寫也要相同）
       </div>
     </div>`;
+}
+
+async function testQZConnection() {
+  const dot  = document.getElementById('qz-status-dot');
+  const text = document.getElementById('qz-status-text');
+  if (!dot || !text) return;
+
+  if (typeof qz === 'undefined') {
+    dot.style.color  = '#9ca3af';
+    text.textContent = 'QZ Tray 未載入（請確認網路可存取 cdn.qz.io）';
+    return;
+  }
+
+  dot.style.color  = '#9ca3af';
+  text.textContent = '連線中…';
+  const ok = await qzConnect();
+  if (ok) {
+    dot.style.color  = '#16a34a';
+    text.textContent = '已連線';
+  } else {
+    dot.style.color  = '#dc2626';
+    text.textContent = '連線失敗（請確認 QZ Tray 已安裝並執行）';
+  }
 }
 
 function onPrinterChange() {

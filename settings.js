@@ -203,7 +203,6 @@ function renderSettingsForm() {
     ${sizeSection}
     ${fontSection}
     ${fieldsSection}
-    ${renderPrinterSettings()}
     <div class="settings-actions">
       <button class="btn" onclick="resetSettings()">重設預設值</button>
       <button class="btn btn-primary" onclick="saveSettings()">儲存設定</button>
@@ -394,6 +393,18 @@ function buildSmallPreviewHTML(s, wPx, hPx) {
       ${barcodeHTML}
     </div>
   `;
+}
+
+// ── Settings Mode (頁面排版 / 印表機設定) ──
+function showSettingsMode(mode) {
+  document.querySelectorAll('.settings-mode-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === mode)
+  );
+  document.getElementById('settings-mode-layout').style.display  = mode === 'layout'  ? 'flex' : 'none';
+  document.getElementById('settings-mode-printer').style.display = mode === 'printer' ? 'flex' : 'none';
+  if (mode === 'printer') {
+    document.getElementById('printer-settings-wrap').innerHTML = renderPrinterSettingsPage();
+  }
 }
 
 // init

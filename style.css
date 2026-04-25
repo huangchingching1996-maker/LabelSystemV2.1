@@ -966,7 +966,36 @@ body {
   .print-body { overflow-y: auto; }
 }
 /* ── Settings View ── */
-#settings-view { display: none; flex: 1; overflow: hidden; }
+#settings-view { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+
+.settings-mode-bar {
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.settings-mode-btn {
+  padding: 10px 22px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: -1px;
+}
+.settings-mode-btn:hover { color: var(--text-primary); }
+.settings-mode-btn.active {
+  color: var(--accent);
+  font-weight: 700;
+  border-bottom-color: var(--accent);
+}
 
 .settings-layout {
   display: flex;
