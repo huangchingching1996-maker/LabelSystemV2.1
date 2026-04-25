@@ -203,6 +203,7 @@ function renderSettingsForm() {
     ${sizeSection}
     ${fontSection}
     ${fieldsSection}
+    ${renderPrinterSettings()}
     <div class="settings-actions">
       <button class="btn" onclick="resetSettings()">重設預設值</button>
       <button class="btn btn-primary" onclick="saveSettings()">儲存設定</button>

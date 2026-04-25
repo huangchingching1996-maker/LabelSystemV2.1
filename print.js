@@ -59,11 +59,16 @@ function setPaperStyle() {
   s.textContent = `@media print { @page { size: ${mm.w}mm ${pageH}mm${orient}; margin: ${marginTop} 0 0 0; } }`;
 }
 
-function doPrint() {
+async function doPrint() {
   if(!selectedProduct) return;
   const qty    = parseInt(document.getElementById('qty-input').value) || 1;
-  const area   = document.getElementById('print-area');
   const single = buildLabelHTML(selectedProduct, selectedSize);
+
+  const qzOk = await printWithQZ(selectedSize, single, qty);
+  if (qzOk) { closePreview(); return; }
+
+  // fallback: browser print
+  const area = document.getElementById('print-area');
   area.innerHTML = Array(qty).fill(`<div class="label-wrapper">${single}</div>`).join('');
   setPaperStyle();
   closePreview();
@@ -73,11 +78,16 @@ function doPrint() {
   }, 300);
 }
 
-function doPrintFromPreview() {
+async function doPrintFromPreview() {
   if(!selectedProduct) return;
   const qty    = parseInt(document.getElementById('qty-input').value) || 1;
-  const area   = document.getElementById('print-area');
   const single = buildLabelHTML(selectedProduct, selectedSize);
+
+  const qzOk = await printWithQZ(selectedSize, single, qty);
+  if (qzOk) { closePreview(); return; }
+
+  // fallback: browser print
+  const area = document.getElementById('print-area');
   area.innerHTML = Array(qty).fill(`<div class="label-wrapper">${single}</div>`).join('');
   setPaperStyle();
   window.print();
