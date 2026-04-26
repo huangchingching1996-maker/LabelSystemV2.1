@@ -5534,7 +5534,7 @@ const BUILTIN = [
   {
     "商品編號": 159,
     "商品名稱": "堅果香餅",
-    "葷素別": "蛋奶素",
+    "葷素別": "奶蛋素",
     "類別": "餅類",
     "扣重(Kg)": 0,
     "條碼格式": "EAN8",
@@ -14393,7 +14393,7 @@ const CATS = ['全部', '喜餅類', '大餅類', '小點類', '文創商品', '
 const FIELDS = [
   {key:'商品編號',label:'商品編號',type:'readonly'},
   {key:'商品名稱',label:'商品名稱 *',type:'text',required:true},
-  {key:'葷素別',label:'葷素別 *',type:'select',required:true,options:['','葷','純素','奶素','奶蛋素','蛋奶素','植物五辛素']},
+  {key:'葷素別',label:'葷素別 *',type:'select',required:true,options:['','葷','純素','奶素','奶蛋素','植物五辛素']},
   {key:'類別',label:'類別 *',type:'select',required:true,options:['喜餅類','大餅類','小點類','文創商品','椪類','禮盒類','空盒類','節慶禮盒','糕類','老類','臨時條碼','運費','酥餅系列','飲料類','餅類','餐點類','鳳梨酥系列']},
   {key:'條碼格式',label:'條碼格式 *',type:'select',required:true,options:['EAN8','EAN13']},
   {key:'條碼內容',label:'條碼內容 *',type:'text',required:true},
