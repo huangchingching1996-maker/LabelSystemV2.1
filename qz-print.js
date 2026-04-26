@@ -102,18 +102,28 @@ function renderPrinterSettingsPage() {
       <div class="settings-section-title">印表機名稱</div>
       <div class="settings-row">
         <span class="settings-label">大標印表機</span>
-        <input class="settings-input" style="flex:1;max-width:220px;" type="text"
-          id="printer-large" value="${ps.large}" placeholder="TSC TDP225A"
-          oninput="onPrinterChange()">
+        <div style="display:flex;gap:6px;flex:1;max-width:280px;">
+          <input class="settings-input" style="flex:1;" type="text"
+            id="printer-large" value="${ps.large}" placeholder="TSC TDP225A"
+            oninput="onPrinterChange()">
+          <button class="btn" style="padding:4px 10px;font-size:12px;flex-shrink:0;"
+            onclick="searchPrinters('large')">搜尋</button>
+        </div>
       </div>
+      <div id="printer-large-list" style="display:none;margin:4px 0 8px 0;"></div>
       <div class="settings-row">
         <span class="settings-label">小標印表機</span>
-        <input class="settings-input" style="flex:1;max-width:220px;" type="text"
-          id="printer-small" value="${ps.small}" placeholder="TSC TDP225A"
-          oninput="onPrinterChange()">
+        <div style="display:flex;gap:6px;flex:1;max-width:280px;">
+          <input class="settings-input" style="flex:1;" type="text"
+            id="printer-small" value="${ps.small}" placeholder="TSC TDP225A"
+            oninput="onPrinterChange()">
+          <button class="btn" style="padding:4px 10px;font-size:12px;flex-shrink:0;"
+            onclick="searchPrinters('small')">搜尋</button>
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;padding:0 2px;line-height:1.6;">
-        名稱需與 Windows「印表機與掃描器」內完全一致（大小寫也要相同）
+      <div id="printer-small-list" style="display:none;margin:4px 0 8px 0;"></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;padding:0 2px;line-height:1.6;">
+        按「搜尋」可列出電腦上所有印表機，點選即自動填入
       </div>
     </div>`;
 }
@@ -139,6 +149,51 @@ async function testQZConnection() {
     dot.style.color  = '#dc2626';
     text.textContent = '連線失敗（請確認 QZ Tray 已安裝並執行）';
   }
+}
+
+async function searchPrinters(target) {
+  const listEl = document.getElementById(`printer-${target}-list`);
+  if (!listEl) return;
+
+  listEl.style.display = 'block';
+  listEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:4px 2px;">連線中…</div>';
+
+  const connected = await qzConnect();
+  if (!connected) {
+    listEl.innerHTML = '<div style="font-size:12px;color:#dc2626;padding:4px 2px;">QZ Tray 未連線，請先測試連線</div>';
+    return;
+  }
+
+  let printers;
+  try {
+    printers = await qz.printers.find();
+  } catch (e) {
+    listEl.innerHTML = `<div style="font-size:12px;color:#dc2626;padding:4px 2px;">搜尋失敗：${e.message}</div>`;
+    return;
+  }
+
+  if (!printers || printers.length === 0) {
+    listEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:4px 2px;">找不到任何印表機</div>';
+    return;
+  }
+
+  const items = printers.map(name => `
+    <div style="padding:6px 10px;font-size:13px;cursor:pointer;border-radius:4px;
+      border:1px solid var(--border);background:var(--surface);margin-bottom:4px;"
+      onmouseover="this.style.background='var(--bg)'"
+      onmouseout="this.style.background='var(--surface)'"
+      onclick="selectPrinter('${target}', this.dataset.name)"
+      data-name="${name.replace(/"/g, '&quot;')}">${name}</div>
+  `).join('');
+
+  listEl.innerHTML = `<div style="max-height:160px;overflow-y:auto;">${items}</div>`;
+}
+
+function selectPrinter(target, name) {
+  const input = document.getElementById(`printer-${target}`);
+  if (input) { input.value = name; onPrinterChange(); }
+  const listEl = document.getElementById(`printer-${target}-list`);
+  if (listEl) listEl.style.display = 'none';
 }
 
 function onPrinterChange() {
