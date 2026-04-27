@@ -59,37 +59,33 @@ function setPaperStyle() {
   s.textContent = `@media print { @page { size: ${mm.w}mm ${pageH}mm${orient}; margin: ${marginTop} 0 0 0; } }`;
 }
 
-async function doPrint() {
+function doPrint() {
   if(!selectedProduct) return;
-  const qty    = parseInt(document.getElementById('qty-input').value) || 1;
-  const single = buildLabelHTML(selectedProduct, selectedSize);
-
-  const qzOk = await printWithQZ(selectedSize, single, qty);
-  if (qzOk) { closePreview(); return; }
-
-  // fallback: browser print
-  const area = document.getElementById('print-area');
-  area.innerHTML = Array(qty).fill(`<div class="label-wrapper">${single}</div>`).join('');
-  setPaperStyle();
-  closePreview();
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => { area.innerHTML = ''; }, 500);
-  }, 300);
+  // Show confirmation preview before printing
+  doPreview();
 }
 
 async function doPrintFromPreview() {
   if(!selectedProduct) return;
-  const qty    = parseInt(document.getElementById('qty-input').value) || 1;
+  const qtyInput = document.getElementById('qty-input');
+  const qty    = parseInt(qtyInput.value) || 1;
   const single = buildLabelHTML(selectedProduct, selectedSize);
 
   const qzOk = await printWithQZ(selectedSize, single, qty);
-  if (qzOk) { closePreview(); return; }
+  if (qzOk) {
+    closePreview();
+    qtyInput.value = 1;
+    return;
+  }
 
   // fallback: browser print
   const area = document.getElementById('print-area');
   area.innerHTML = Array(qty).fill(`<div class="label-wrapper">${single}</div>`).join('');
   setPaperStyle();
   window.print();
-  setTimeout(() => { area.innerHTML = ''; }, 1000);
+  setTimeout(() => {
+    area.innerHTML = '';
+    closePreview();
+    qtyInput.value = 1;
+  }, 1000);
 }
