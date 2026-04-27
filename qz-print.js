@@ -31,10 +31,17 @@ async function buildPrintDoc(labelHTML, size) {
     css = await r.text();
   } catch {}
 
-  const isSmall  = size === 'small';
-  const pageW    = isSmall ? 35   : 55;
-  const pageH    = isSmall ? 25   : 56.5;
-  const marginT  = isSmall ? 0    : 1.5;
+  const isSmall = size === 'small';
+
+  // px dimensions at 96 dpi: 55mm=208px, 25mm=94px, 35mm=132px
+  const bodyW = isSmall ? 94  : 208;
+  const bodyH = isSmall ? 132 : 208;
+
+  // Small: pre-rotate content 90° CW inside a portrait page (25×35mm).
+  // The TSC driver rotates the page 90° CCW → net = 0° → correct landscape output.
+  const bodyContent = isSmall
+    ? `<div style="position:absolute;top:${bodyH}px;left:0;transform-origin:top left;transform:rotate(90deg);">${labelHTML}</div>`
+    : labelHTML;
 
   return `<!DOCTYPE html>
 <html>
@@ -42,13 +49,18 @@ async function buildPrintDoc(labelHTML, size) {
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-@page { size: ${pageW}mm ${pageH}mm; margin: ${marginT}mm 0 0 0; }
-body { margin:0; padding:0; width:${pageW}mm; height:${pageH - marginT}mm; overflow:hidden; }
 ${css}
+html { margin:0!important; padding:0!important; }
+body {
+  margin:0!important; padding:0!important;
+  min-height:0!important; background:white!important;
+  width:${bodyW}px!important; height:${bodyH}px!important;
+  overflow:hidden!important; position:relative!important;
+}
 * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 </style>
 </head>
-<body>${labelHTML}</body>
+<body>${bodyContent}</body>
 </html>`;
 }
 
@@ -66,9 +78,10 @@ async function printWithQZ(size, labelHTML, qty) {
 
   const isSmall = size === 'small';
   const config = qz.configs.create(printerName, {
-    size:      isSmall ? { width: 35, height: 25 } : { width: 55, height: 56.5 },
-    units:     'mm',
-    margins:   { top: 0, right: 0, bottom: 0, left: 0 },
+    size:    isSmall ? { width: 25, height: 35 } : { width: 55, height: 56.5 },
+    units:   'mm',
+    margins: isSmall ? { top: 0,   right: 0, bottom: 0, left: 0 }
+                     : { top: 1.5, right: 0, bottom: 0, left: 0 },
     colorType: 'blackwhite',
     copies:    qty,
   });
