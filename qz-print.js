@@ -15,11 +15,30 @@ async function qzConnect() {
   if (typeof qz === 'undefined') return false;
   if (qz.websocket.isActive()) return true;
   try {
-    await qz.websocket.connect();
+    await qz.websocket.connect({ keepAlive: 60 });
     return true;
   } catch {
     return false;
   }
+}
+
+// Connect once on page load and auto-reconnect if dropped.
+function qzAutoSetup() {
+  if (typeof qz === 'undefined') return;
+  qz.websocket.setClosedCallbacks(function() {
+    setTimeout(function() {
+      if (typeof qz !== 'undefined' && !qz.websocket.isActive()) {
+        qz.websocket.connect({ keepAlive: 60 }).catch(function() {});
+      }
+    }, 3000);
+  });
+  qz.websocket.connect({ keepAlive: 60 }).catch(function() {});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', qzAutoSetup);
+} else {
+  qzAutoSetup();
 }
 
 async function buildPrintDoc(labelHTML, size) {
