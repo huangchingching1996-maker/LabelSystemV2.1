@@ -33,18 +33,32 @@ async function buildPrintDoc(labelHTML, size) {
 
   const isSmall = size === 'small';
 
-  // px at 96 dpi: 55mm=208px, 25mm=94px, 35mm=132px
-  const bodyW = isSmall ? 94  : 208;
-  const bodyH = isSmall ? 132 : 208;
+  if (isSmall) {
+    // Portrait page: 94×132px (25×35mm at 96dpi).
+    // label-small (132×94px landscape) is absolutely positioned at (-19,19)
+    // and rotated -90° around its center → visual fills (0,0)-(94,132).
+    // Body has NO overflow:hidden so the layout overhang at x=-19 isn't clipped
+    // before the transform is painted.
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+${css}
+html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
+body { width:94px!important; height:132px!important; position:relative!important; }
+* { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+</style>
+</head>
+<body>
+<div style="position:absolute;left:-19px;top:19px;width:132px;height:94px;transform-origin:center;transform:rotate(-90deg);">${labelHTML}</div>
+</body>
+</html>`;
+  }
 
-  // Small: body is portrait (94×132).
-  // label-small (132×94) is flex-centered then rotated -90° (CCW).
-  // After TSC driver's 90° CW rotation → correct landscape output.
-  const smallCSS = isSmall ? `
-    body { display:flex!important; align-items:center!important; justify-content:center!important; }
-    .label-small { transform:rotate(-90deg)!important; transform-origin:center!important; flex-shrink:0!important; }
-  ` : '';
-
+  // Large label: 55×56.5mm, 1.5mm top margin → content area 208×208px.
+  // Reduce usable width to 200px to stay inside the printer's non-printable zone.
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -52,14 +66,10 @@ async function buildPrintDoc(labelHTML, size) {
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 ${css}
-html { margin:0!important; padding:0!important; }
-body {
-  margin:0!important; padding:0!important;
-  min-height:0!important; background:white!important;
-  width:${bodyW}px!important; height:${bodyH}px!important;
-  overflow:hidden!important;
-}
-${smallCSS}
+html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
+body { width:208px!important; height:208px!important; overflow:hidden!important; }
+.label-large { width:200px!important; height:200px!important; }
+.ll-right { width:108px!important; }
 * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 </style>
 </head>
