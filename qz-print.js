@@ -57,7 +57,7 @@ async function renderLabelToBase64(labelHTML, size) {
     const canvas = await html2canvas(wrap.firstElementChild || wrap, {
       width:           w,
       height:          h,
-      scale:           2,
+      scale:           3,
       useCORS:         true,
       backgroundColor: '#ffffff',
       logging:         false,

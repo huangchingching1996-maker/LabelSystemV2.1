@@ -729,7 +729,7 @@ body {
   text-overflow: ellipsis;
 }
 .label-small .sl-sub {
-  font-size: 9px;
+  font-size: 8.5px;
   color: #333;
   line-height: 1.3;
 }
@@ -768,7 +768,7 @@ body {
   margin-bottom: 2px;
 }
 .ll-name { font-size: 13px; font-weight: 400; color: #000; line-height: 1.2; }
-.ll-sub  { font-size: 10px; color: #000; font-weight: 400; }
+.ll-sub  { font-size: 9.5px; color: #000; font-weight: 400; }
 .ll-body { display: flex; gap: 3px; flex: 1; min-height: 0; overflow: hidden; }
 
 /* Left column */
