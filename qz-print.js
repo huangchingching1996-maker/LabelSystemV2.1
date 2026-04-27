@@ -33,15 +33,17 @@ async function buildPrintDoc(labelHTML, size) {
 
   const isSmall = size === 'small';
 
-  // px dimensions at 96 dpi: 55mm=208px, 25mm=94px, 35mm=132px
+  // px at 96 dpi: 55mm=208px, 25mm=94px, 35mm=132px
   const bodyW = isSmall ? 94  : 208;
   const bodyH = isSmall ? 132 : 208;
 
-  // Small: pre-rotate content 90° CW inside a portrait page (25×35mm).
-  // The TSC driver rotates the page 90° CCW → net = 0° → correct landscape output.
-  const bodyContent = isSmall
-    ? `<div style="position:absolute;top:${bodyH}px;left:0;transform-origin:top left;transform:rotate(90deg);">${labelHTML}</div>`
-    : labelHTML;
+  // Small: body is portrait (94×132).
+  // label-small (132×94) is flex-centered then rotated -90° (CCW).
+  // After TSC driver's 90° CW rotation → correct landscape output.
+  const smallCSS = isSmall ? `
+    body { display:flex!important; align-items:center!important; justify-content:center!important; }
+    .label-small { transform:rotate(-90deg)!important; transform-origin:center!important; flex-shrink:0!important; }
+  ` : '';
 
   return `<!DOCTYPE html>
 <html>
@@ -55,12 +57,13 @@ body {
   margin:0!important; padding:0!important;
   min-height:0!important; background:white!important;
   width:${bodyW}px!important; height:${bodyH}px!important;
-  overflow:hidden!important; position:relative!important;
+  overflow:hidden!important;
 }
+${smallCSS}
 * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 </style>
 </head>
-<body>${bodyContent}</body>
+<body>${labelHTML}</body>
 </html>`;
 }
 
