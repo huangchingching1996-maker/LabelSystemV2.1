@@ -113,8 +113,9 @@ async function printWithQZ(size, labelHTML, qty) {
     units:   'mm',
     margins: isSmall ? { top: 0,   right: 0, bottom: 0, left: 0 }
                      : { top: 1.5, right: 0, bottom: 0, left: 0 },
-    colorType: 'blackwhite',
-    copies:    qty,
+    colorType:   'blackwhite',
+    altPrinting: true,
+    copies:      qty,
   });
 
   try {
