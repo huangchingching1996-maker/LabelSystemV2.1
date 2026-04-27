@@ -53,16 +53,18 @@ async function buildPrintDoc(labelHTML, size) {
   const isSmall = size === 'small';
 
   if (isSmall) {
-    // Landscape page: 35×25mm. @page constrains Chromium viewport to label size.
+    // Landscape 35×25mm. viewport meta forces Chromium to render at 132px wide.
     return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=132, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 @page { size: 35mm 25mm; margin: 0; }
 ${css}
 html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
+html { width:132px!important; height:94px!important; }
 body { width:132px!important; height:94px!important; overflow:hidden!important; }
 * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 </style>
@@ -71,16 +73,18 @@ body { width:132px!important; height:94px!important; overflow:hidden!important; 
 </html>`;
   }
 
-  // Large label: 55×56.5mm, 1.5mm top margin → content area 208×208px.
+  // Large label: 55×56.5mm. viewport meta forces Chromium to render at 208px wide.
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=208, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 @page { size: 55mm 56.5mm; margin: 1.5mm 0 0 0; }
 ${css}
 html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
+html { width:208px!important; }
 body { width:208px!important; height:208px!important; overflow:hidden!important; }
 .label-large { width:200px!important; height:200px!important; }
 .ll-right { width:108px!important; }
