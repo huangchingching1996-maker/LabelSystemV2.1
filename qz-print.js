@@ -53,11 +53,9 @@ async function buildPrintDoc(labelHTML, size) {
   const isSmall = size === 'small';
 
   if (isSmall) {
-    // Portrait page: 94×132px (25×35mm at 96dpi).
-    // label-small (132×94px landscape) is absolutely positioned at (-19,19)
-    // and rotated -90° around its center → visual fills (0,0)-(94,132).
-    // Body has NO overflow:hidden so the layout overhang at x=-19 isn't clipped
-    // before the transform is painted.
+    // Landscape page: 132×94px (35×25mm at 96dpi).
+    // label-small is 132×94px landscape — render it directly, no rotation.
+    // QZ config uses size:{width:35,height:25} to match landscape paper.
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -66,13 +64,11 @@ async function buildPrintDoc(labelHTML, size) {
 <style>
 ${css}
 html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
-body { width:94px!important; height:132px!important; position:relative!important; }
+body { width:132px!important; height:94px!important; overflow:hidden!important; }
 * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 </style>
 </head>
-<body>
-<div style="position:absolute;left:-19px;top:19px;width:132px;height:94px;transform-origin:center;transform:rotate(-90deg);">${labelHTML}</div>
-</body>
+<body>${labelHTML}</body>
 </html>`;
   }
 
@@ -110,7 +106,7 @@ async function printWithQZ(size, labelHTML, qty) {
 
   const isSmall = size === 'small';
   const config = qz.configs.create(printerName, {
-    size:    isSmall ? { width: 25, height: 35 } : { width: 55, height: 56.5 },
+    size:    isSmall ? { width: 35, height: 25 } : { width: 55, height: 56.5 },
     units:   'mm',
     margins: isSmall ? { top: 0,   right: 0, bottom: 0, left: 0 }
                      : { top: 1.5, right: 0, bottom: 0, left: 0 },
