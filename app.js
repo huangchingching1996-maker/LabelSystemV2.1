@@ -75,7 +75,8 @@ function showView(v) {
 function renderCats() {
   const panel = document.getElementById('cat-panel');
   const favs  = loadFavorites();
-  const allCats = ['常用', ...CATS];
+  const favIdx  = CATS.indexOf('鳳梨酥系列');
+  const allCats = [...CATS.slice(0, favIdx + 1), '常用', ...CATS.slice(favIdx + 1)];
   panel.innerHTML = allCats.map(cat => {
     let count;
     if (cat === '全部')    count = products.length;
