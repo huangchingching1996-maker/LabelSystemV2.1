@@ -166,7 +166,21 @@ body {
   text-align: left;
   transition: all 0.15s;
   box-shadow: var(--shadow);
+  position: relative;
 }
+.fav-star {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--border);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+  user-select: none;
+}
+.fav-star:hover { color: #f59e0b; transform: scale(1.2); }
+.fav-star.active { color: #f59e0b; }
 .product-btn:hover {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-light);

@@ -6,6 +6,26 @@ let selectedSize = 'large';
 let editIdx = null;
 let pendingUploadData = null;
 
+// ── Favorites ──
+const FAVORITES_KEY = 'nls_favorites_v1';
+
+function loadFavorites() {
+  try { return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []); } catch { return new Set(); }
+}
+
+function saveFavorites(set) {
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify([...set]));
+}
+
+function toggleFavorite(id, event) {
+  event.stopPropagation();
+  const favs = loadFavorites();
+  if (favs.has(id)) { favs.delete(id); } else { favs.add(id); }
+  saveFavorites(favs);
+  renderCats();
+  renderProducts();
+}
+
 // ── Init ──
 function init() {
   const ver = localStorage.getItem('nls_version');
@@ -54,8 +74,13 @@ function showView(v) {
 // ── Categories ──
 function renderCats() {
   const panel = document.getElementById('cat-panel');
-  panel.innerHTML = CATS.map(cat => {
-    const count = cat === '全部' ? products.length : products.filter(p => p.類別 === cat).length;
+  const favs  = loadFavorites();
+  const allCats = ['常用', ...CATS];
+  panel.innerHTML = allCats.map(cat => {
+    let count;
+    if (cat === '全部')    count = products.length;
+    else if (cat === '常用') count = products.filter(p => favs.has(p.商品編號)).length;
+    else                   count = products.filter(p => p.類別 === cat).length;
     return `<button class="cat-btn ${cat===selectedCat?'active':''}" data-cat="${cat}" onclick="selectCat(this.dataset.cat)">
       ${cat} <span class="cat-count">${count}</span>
     </button>`;
@@ -70,27 +95,37 @@ function selectCat(cat) {
 
 // ── Products ──
 function getFilteredProducts() {
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const q    = document.getElementById('search-input').value.trim().toLowerCase();
+  const favs = loadFavorites();
   return products.filter(p => {
-    const catOk = selectedCat === '全部' || p.類別 === selectedCat;
-    if(!q) return catOk;
-    const name = (p.商品名稱 || '').toLowerCase();
-    const code = String(p.商品編號 || '');
+    let catOk;
+    if (selectedCat === '全部')    catOk = true;
+    else if (selectedCat === '常用') catOk = favs.has(p.商品編號);
+    else                           catOk = p.類別 === selectedCat;
+    if (!q) return catOk;
+    const name    = (p.商品名稱 || '').toLowerCase();
+    const code    = String(p.商品編號 || '');
     const barcode = String(p.條碼內容 || '');
     return catOk && (name.includes(q) || code.includes(q) || barcode.includes(q));
   });
 }
 
 function renderProducts() {
-  const grid = document.getElementById('product-grid');
+  const grid     = document.getElementById('product-grid');
   const filtered = getFilteredProducts();
-  if(!filtered.length) {
-    grid.innerHTML = '<div class="empty-state">找不到符合的商品</div>';
+  const favs     = loadFavorites();
+
+  if (!filtered.length) {
+    grid.innerHTML = selectedCat === '常用'
+      ? '<div class="empty-state">尚未加入常用商品<br><span style="font-size:12px;color:var(--text-muted)">點商品卡片右上角 ★ 加入</span></div>'
+      : '<div class="empty-state">找不到符合的商品</div>';
     return;
   }
   grid.innerHTML = filtered.map(p => {
-    const sel = selectedProduct && selectedProduct.商品編號 === p.商品編號;
+    const sel     = selectedProduct && selectedProduct.商品編號 === p.商品編號;
+    const isFav   = favs.has(p.商品編號);
     return `<button class="product-btn ${sel?'selected':''}" onclick="selectProduct(${p.商品編號})">
+      <span class="fav-star ${isFav?'active':''}" onclick="toggleFavorite(${p.商品編號}, event)" title="${isFav?'移除常用':'加入常用'}">★</span>
       <div class="product-name">${p.商品名稱}</div>
       ${p['葷素別'] ? `<div class="product-sub">${p['葷素別']}</div>` : ''}
       <div class="product-code">#${p.商品編號}</div>
