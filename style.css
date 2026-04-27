@@ -457,11 +457,13 @@ body {
   width: 100%;
   border-collapse: collapse;
   background: var(--surface);
-  border-radius: 10px;
-  overflow: hidden;
   box-shadow: var(--shadow);
   font-size: 12px;
 }
+.data-table thead tr:first-child th:first-child { border-radius: 10px 0 0 0; }
+.data-table thead tr:first-child th:last-child  { border-radius: 0 10px 0 0; }
+.data-table tbody tr:last-child td:first-child  { border-radius: 0 0 0 10px; }
+.data-table tbody tr:last-child td:last-child   { border-radius: 0 0 10px 0; }
 .data-table th {
   background: #8B1A1A;
   color: white;
