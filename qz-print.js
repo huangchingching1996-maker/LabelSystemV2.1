@@ -41,55 +41,31 @@ if (document.readyState === 'loading') {
   qzAutoSetup();
 }
 
-async function buildPrintDoc(labelHTML, size) {
-  const styleLink = document.querySelector('link[rel=stylesheet]');
-  const cssURL = styleLink ? styleLink.href : 'style.css';
-  let css = '';
-  try {
-    const r = await fetch(cssURL);
-    css = await r.text();
-  } catch {}
-
+// Render label HTML to base64 PNG using the browser's own renderer.
+// This guarantees the printed image matches the on-screen preview exactly.
+async function renderLabelToBase64(labelHTML, size) {
   const isSmall = size === 'small';
+  const w = isSmall ? 132 : 208;
+  const h = isSmall ? 94  : 208;
 
-  if (isSmall) {
-    // Landscape 35×25mm. Use mm units so size is DPI-independent.
-    return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-@page { size: 35mm 25mm; margin: 0; }
-${css}
-html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
-body { width:35mm!important; height:25mm!important; overflow:hidden!important; }
-.label-small { width:35mm!important; height:25mm!important; }
-* { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-</style>
-</head>
-<body>${labelHTML}</body>
-</html>`;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `position:fixed;left:-9999px;top:0;width:${w}px;height:${h}px;overflow:hidden;background:#fff;`;
+  wrap.innerHTML = labelHTML;
+  document.body.appendChild(wrap);
+
+  try {
+    const canvas = await html2canvas(wrap.firstElementChild || wrap, {
+      width:           w,
+      height:          h,
+      scale:           2,
+      useCORS:         true,
+      backgroundColor: '#ffffff',
+      logging:         false,
+    });
+    return canvas.toDataURL('image/png').split(',')[1];
+  } finally {
+    document.body.removeChild(wrap);
   }
-
-  // Large label: 55×56.5mm. Use mm units so size is DPI-independent.
-  return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-@page { size: 55mm 56.5mm; margin: 1.5mm 0 0 0; }
-${css}
-html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
-body { width:55mm!important; height:55mm!important; overflow:hidden!important; }
-.label-large { width:55mm!important; height:55mm!important; }
-.ll-right { width:40%!important; }
-* { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-</style>
-</head>
-<body>${labelHTML}</body>
-</html>`;
 }
 
 async function printWithQZ(size, labelHTML, qty) {
@@ -110,14 +86,13 @@ async function printWithQZ(size, labelHTML, qty) {
     units:   'mm',
     margins: isSmall ? { top: 0,   right: 0, bottom: 0, left: 0 }
                      : { top: 1.5, right: 0, bottom: 0, left: 0 },
-    colorType:   'blackwhite',
-    altPrinting: true,
-    copies:      qty,
+    colorType: 'blackwhite',
+    copies:    qty,
   });
 
   try {
-    const doc = await buildPrintDoc(labelHTML, size);
-    await qz.print(config, [{ type: 'html', format: 'plain', data: doc }]);
+    const base64 = await renderLabelToBase64(labelHTML, size);
+    await qz.print(config, [{ type: 'pixel', format: 'image', flavor: 'base64', data: base64 }]);
     return true;
   } catch (e) {
     showToast('QZ Tray 列印失敗：' + e.message, 'error');
