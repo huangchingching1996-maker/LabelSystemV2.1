@@ -22,7 +22,7 @@ async function qzConnect() {
   }
 }
 
-async function buildPrintDoc(labelHTML) {
+async function buildPrintDoc(labelHTML, size) {
   const styleLink = document.querySelector('link[rel=stylesheet]');
   const cssURL = styleLink ? styleLink.href : 'style.css';
   let css = '';
@@ -31,14 +31,20 @@ async function buildPrintDoc(labelHTML) {
     css = await r.text();
   } catch {}
 
+  const isSmall  = size === 'small';
+  const pageW    = isSmall ? 35   : 55;
+  const pageH    = isSmall ? 25   : 56.5;
+  const marginT  = isSmall ? 0    : 1.5;
+
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+@page { size: ${pageW}mm ${pageH}mm; margin: ${marginT}mm 0 0 0; }
+body { margin:0; padding:0; width:${pageW}mm; height:${pageH - marginT}mm; overflow:hidden; }
 ${css}
-body { margin:0; padding:0; }
 * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 </style>
 </head>
@@ -60,17 +66,15 @@ async function printWithQZ(size, labelHTML, qty) {
 
   const isSmall = size === 'small';
   const config = qz.configs.create(printerName, {
-    size:        isSmall ? { width: 35, height: 25 } : { width: 55, height: 56.5 },
-    units:       'mm',
-    orientation: isSmall ? 'landscape' : 'portrait',
-    margins:     size === 'large' ? { top: 1.5, right: 0, bottom: 0, left: 0 }
-                                  : { top: 0,   right: 0, bottom: 0, left: 0 },
-    colorType:   'blackwhite',
-    copies:      qty,
+    size:      isSmall ? { width: 35, height: 25 } : { width: 55, height: 56.5 },
+    units:     'mm',
+    margins:   { top: 0, right: 0, bottom: 0, left: 0 },
+    colorType: 'blackwhite',
+    copies:    qty,
   });
 
   try {
-    const doc = await buildPrintDoc(labelHTML);
+    const doc = await buildPrintDoc(labelHTML, size);
     await qz.print(config, [{ type: 'html', format: 'plain', data: doc }]);
     return true;
   } catch (e) {
