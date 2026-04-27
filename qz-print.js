@@ -53,15 +53,14 @@ async function buildPrintDoc(labelHTML, size) {
   const isSmall = size === 'small';
 
   if (isSmall) {
-    // Landscape page: 132×94px (35×25mm at 96dpi).
-    // label-small is 132×94px landscape — render it directly, no rotation.
-    // QZ config uses size:{width:35,height:25} to match landscape paper.
+    // Landscape page: 35×25mm. @page constrains Chromium viewport to label size.
     return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+@page { size: 35mm 25mm; margin: 0; }
 ${css}
 html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
 body { width:132px!important; height:94px!important; overflow:hidden!important; }
@@ -73,13 +72,13 @@ body { width:132px!important; height:94px!important; overflow:hidden!important; 
   }
 
   // Large label: 55×56.5mm, 1.5mm top margin → content area 208×208px.
-  // Reduce usable width to 200px to stay inside the printer's non-printable zone.
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+@page { size: 55mm 56.5mm; margin: 1.5mm 0 0 0; }
 ${css}
 html, body { margin:0!important; padding:0!important; min-height:0!important; background:white!important; }
 body { width:208px!important; height:208px!important; overflow:hidden!important; }
