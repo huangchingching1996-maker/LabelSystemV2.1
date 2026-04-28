@@ -49,6 +49,12 @@ async function renderLabelToBase64(labelHTML, size) {
   const w = isSmall ? 132 : 208;
   const h = isSmall ? 94  : 208;
 
+  // Render at exactly the printer's native dot count (203 DPI) so QZ sends
+  // the image 1-dot-per-pixel with no scaling — eliminates blur from resampling.
+  const mmW   = isSmall ? 35 : 55;
+  const dotW  = Math.round(mmW * 203 / 25.4);   // 280 (small) | 440 (large)
+  const scale = dotW / w;                         // ≈ 2.12
+
   const wrap = document.createElement('div');
   wrap.style.cssText = `position:fixed;left:-9999px;top:0;width:${w}px;height:${h}px;overflow:hidden;background:#fff;`;
   wrap.innerHTML = labelHTML;
@@ -58,7 +64,7 @@ async function renderLabelToBase64(labelHTML, size) {
     const canvas = await html2canvas(wrap.firstElementChild || wrap, {
       width:           w,
       height:          h,
-      scale:           3,
+      scale:           scale,
       useCORS:         true,
       backgroundColor: '#ffffff',
       logging:         false,
