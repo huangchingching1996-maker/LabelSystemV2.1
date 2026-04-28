@@ -14,8 +14,8 @@ function doPreview() {
   const labelPxW = mm.w * PX_PER_MM;
   const labelPxH = mm.h * PX_PER_MM;
   // Large label gets more preview space; small label is compact
-  const maxW  = Math.min(window.innerWidth * 0.5, selectedSize === 'large' ? 290 : 260);
-  const maxH  = window.innerHeight * 0.35;
+  const maxW  = Math.min(window.innerWidth * 0.7, selectedSize === 'large' ? 360 : 280);
+  const maxH  = window.innerHeight * 0.4;
   const scale = Math.min(maxW / labelPxW, maxH / labelPxH, 2);
 
   const scaledW = Math.round(labelPxW * scale);
