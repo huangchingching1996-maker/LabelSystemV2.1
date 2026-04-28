@@ -85,9 +85,9 @@ function buildLabelHTML(product, size) {
   let bcCodeL, svgL;
   bcCodeL = (p.條碼內容||'').toString();
   if(isEAN13) {
-    svgL = ean13SVG(bcCodeL, 160, 18);
+    svgL = ean13SVG(bcCodeL, 108, 14);
   } else {
-    svgL = ean8SVG(bcCodeL, 120, 18);
+    svgL = ean8SVG(bcCodeL, 108, 14);
   }
   const expiryL = expiryDate(p.保存天數);
 
@@ -145,11 +145,11 @@ function buildLabelHTML(product, size) {
           </tr>
           ${ntTableRows}
         </table>
+        <div class="ll-barcode-wrap">
+          ${svgL}
+          <div class="ll-barcode-num">${bcCodeL}</div>
+        </div>
       </div>
-    </div>
-    <div class="ll-barcode-wrap">
-      ${svgL}
-      <div class="ll-barcode-num">${bcCodeL}</div>
     </div>
   </div>`;
 }

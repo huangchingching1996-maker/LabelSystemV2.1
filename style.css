@@ -906,18 +906,19 @@ body {
 .ll-nt-table .nt-indent { padding-left: 6px; font-weight: 400; }
 .ll-nt-table .nt-val { text-align: right; white-space: nowrap; }
 
-/* Barcode */
+/* Barcode — now lives inside .ll-right, below nutrition table */
 .ll-barcode-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 3px;
+  border-top: 0.5px solid #000;
+  padding: 2px 0 1px;
   flex-shrink: 0;
 }
 .ll-barcode-num {
   font-family: 'DM Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 1px;
+  font-size: 7px;
+  letter-spacing: 0.5px;
   margin-top: 1px;
 }
 
