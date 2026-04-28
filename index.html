@@ -6,7 +6,7 @@
 <title>營養標示列印系統</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body>
 <div id="app">
@@ -240,13 +240,18 @@
 
 <!-- Preview Overlay -->
 <div class="preview-overlay" id="preview-overlay">
-  <button class="preview-close" onclick="closePreview()" style="position:fixed;top:20px;right:20px;">✕</button>
-  <div class="preview-container" id="preview-container">
-    <div class="preview-label" id="preview-label"></div>
-    <div id="preview-labels-wrap"></div>
-    <div class="preview-actions">
-      <button class="btn btn-primary" onclick="doPrintFromPreview()">確認列印</button>
+  <div class="preview-container">
+    <div class="preview-header">
+      <span class="preview-product-name" id="preview-product-name"></span>
+      <button class="modal-close" onclick="closePreview()">✕</button>
+    </div>
+    <div class="preview-body">
+      <div id="preview-labels-wrap"></div>
+      <div class="preview-info" id="preview-info"></div>
+    </div>
+    <div class="preview-footer">
       <button class="btn" onclick="closePreview()">關閉</button>
+      <button class="btn btn-primary" onclick="doPrintFromPreview()">確認列印</button>
     </div>
   </div>
 </div>
@@ -263,7 +268,7 @@
 <script src="data.js?v=11"></script>
 <script src="app.js?v=10"></script>
 <script src="label.js?v=19"></script>
-<script src="print.js?v=16"></script>
+<script src="print.js?v=17"></script>
 <script src="admin.js?v=9"></script>
 <script src="upload.js?v=6"></script>
 <script src="settings.js?v=10"></script>

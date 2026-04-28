@@ -22,24 +22,26 @@ function doPreview() {
   const scaledH = Math.round(labelPxH * scale);
 
   const sizeText = selectedSize === 'large' ? '大標' : '小標';
-  const dimText  = `${mm.w}×${mm.h} mm`;
 
-  document.getElementById('preview-label').innerHTML =
-    `<div class="preview-product-name">${selectedProduct.商品名稱}</div>
-     <div class="preview-meta">
-       <span class="preview-badge">${sizeText}<span class="preview-dim">${dimText}</span></span>
-       <span class="preview-qty">${qty}<span class="preview-qty-label">張</span></span>
-     </div>`;
+  document.getElementById('preview-product-name').textContent = selectedProduct.商品名稱;
 
   document.getElementById('preview-labels-wrap').innerHTML =
-    `<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
-      <div style="width:${scaledW}px;height:${scaledH}px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.2);border-radius:4px;">
-        <div style="display:inline-block;transform:scale(${scale});transform-origin:top left;">
-          <div class="label-wrapper">${single}</div>
-        </div>
+    `<div style="width:${scaledW}px;height:${scaledH}px;overflow:hidden;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+      <div style="display:inline-block;transform:scale(${scale});transform-origin:top left;">
+        <div class="label-wrapper">${single}</div>
       </div>
-      ${qty > 1 ? `<div style="font-size:12px;color:#888;width:100%;text-align:center;">預覽第 1 張，共 ${qty} 張</div>` : ''}
     </div>`;
+
+  document.getElementById('preview-info').innerHTML =
+    `<div class="preview-info-item">
+       <div class="preview-info-label">尺寸</div>
+       <div class="preview-info-value">${sizeText} · ${mm.w}×${mm.h} mm</div>
+     </div>
+     <div class="preview-info-divider"></div>
+     <div class="preview-info-item">
+       <div class="preview-info-label">列印張數</div>
+       <div class="preview-info-value preview-info-qty">${qty} 張</div>
+     </div>`;
 
   document.getElementById('preview-overlay').classList.add('open');
 }
