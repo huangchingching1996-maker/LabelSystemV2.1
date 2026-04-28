@@ -1,74 +1,6 @@
 // ── QZ Tray Integration ──
 const QZ_PRINTER_KEY = 'nls_printer_settings_v1';
 
-// ── Certificate signing (bypasses "Action Required" dialog) ──
-const QZ_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApUKxJW64LEaEmFqW6wXV
-ySn5B/DP0MNPaK2W0nsJgMObfjmsh3bZ5/x3mtnCkrqv++hJAVoe87bojXhYJTnw
-v7K4VCoSqHYa0yFIb64fryUytvdxjdzLdQhJsg2fFt7C2qjM2a9/1PaJKpkSH4DL
-YmWavlz71FhwOFcjeenorR+nrzwaf6AoP3tF6BFyuCa3B8qrymHHbYMZrPaGl0aO
-kWasWXkc6wj/oe2QWT0MMR3yt1UwFrrBpJTCEe3yv83h7QocrD8a4+KE60VCiVq6
-HWTTN8PoUhjPToq45FJANDYIW0V0FbLLHcjEHNILorKRpgMyq0GSVV17jrF92tr1
-owIDAQAB
------END PUBLIC KEY-----`;
-
-const QZ_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
-MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQClQrElbrgsRoSY
-WpbrBdXJKfkH8M/Qw09orZbSewmAw5t+OayHdtnn/Hea2cKSuq/76EkBWh7ztuiN
-eFglOfC/srhUKhKodhrTIUhvrh+vJTK293GN3Mt1CEmyDZ8W3sLaqMzZr3/U9okq
-mRIfgMtiZZq+XPvUWHA4VyN56eitH6evPBp/oCg/e0XoEXK4JrcHyqvKYcdtgxms
-9oaXRo6RZqxZeRzrCP+h7ZBZPQwxHfK3VTAWusGklMIR7fK/zeHtChysPxrj4oTr
-RUKJWrodZNM3w+hSGM9OirjkUkA0NghbRXQVsssdyMQc0guispGmAzKrQZJVXXuO
-sX3a2vWjAgMBAAECggEAHyHTMVQMSfr226SlLZ0pyv2nNkG9RHympvecpAYdoi43
-Sq4evF49aqB6/6bqKq4UnQYDSsfpcMwSPyReppSlr9dBNkm+vhGRuBhbBv7sZRhC
-14kB0VG42lE3YN2EDNDmMD8AaDnRgRL4gBfZ/ClNJzowzo/BuRz39wUjX8Ia3RH9
-kZGiM+9/4AZ1yanrGEDhRogcrhAWx8CmOsu5r3jcC9e5/GWSrpf52C27EYY+OCeH
-IlP+3vYvP1tH8oZmr97SJu8lLsAbLHxa6etXUj0P9dIE6dNCA47TmvilVw19NGal
-Lc6RIHRHfrIKUMs+6sbzrK+Y7fp1jIefSJf7PcWtAQKBgQDl0k9fM5QNrrcJu8Fi
-ilkFHwKQwR8YkWEn9vDRQjdumKXf4Rp7M9D4/s4iS8g7USgw8r5Swqr6iTNObYKH
-Cu8s3Nd1+U5olw5mlQzXfx0Y+zwrYEl7yOKu3MAvXuCA5317ttWixfliytmEa/Uf
-8adInBCQMhbnLRqmyG+2vqvYQQKBgQC4FcGl6DEETjLiIxy/eRLg0zq/Yb5U9EfO
-uJgsdBFqcFwm/6gtwnGetTaA2rXOYNtazHIDdjY3i0y7DyiWAFDVtLpCN5Q3yGFW
-5b73LdCZJxgijrF1j0pMiENgg0VI/EU6OvCl/p6Trq2JsvyxgeT08X67PYCwZ1Bl
-YQqqlU004wKBgQCVjVj3M6I5kSMtI1ABptOtAHPz7KgmnZwinJAzLCrUPmNan6pS
-1/I5xd4v9S6UYwiLabsuMd1/cT7A34RcCmJ/yCoxbA15BCtr17xmkyJFOl/6Pgsz
-kRLqBV7OtKfVWk6O7fhxlvDlN+l6QaJeqitYla41l1LOFszMEYyY19UNwQKBgQCO
-SIqv0IMqf8LGlTsgJ9XWno2W5Va21UU3W+iK23+mlIg1wH9eNx+Y+xnQiLvjc2u4
-h7NMR69qSSoan4HQRxgzxgf9LHZMk33hK5zp8qh76AK4mzBA3GsiMmRZkb0Yx5w+
-gNYGh4JMRcRuXUEBdpPgW1SIJuZz8rbqVRJofRP63wKBgQC9MccrH/QnTyR73scR
-CEkSxSDGtvtooFyuzeDUMpKCQq2ujf6hx2ylRzFAmoZ1ucP+LYnchNf7kDntlvCK
-GGrjy7FpTIFxdkEdQSzkLdorSO89tuvOsNKWJ4/DcBFpptSCEkQpQ2cEpWJxwwYM
-lybL36bJqraDQu9T23lhuDXihQ==
------END PRIVATE KEY-----`;
-
-let _qzPrivateKey = null;
-async function getQZPrivateKey() {
-  if (_qzPrivateKey) return _qzPrivateKey;
-  const pem = QZ_PRIVATE_KEY.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, '');
-  const der = Uint8Array.from(atob(pem), c => c.charCodeAt(0));
-  _qzPrivateKey = await crypto.subtle.importKey(
-    'pkcs8', der.buffer,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-512' },
-    false, ['sign']
-  );
-  return _qzPrivateKey;
-}
-
-function setupQZSecurity() {
-  qz.security.setCertificatePromise(function(resolve) {
-    resolve(QZ_PUBLIC_KEY);
-  });
-  qz.security.setSignatureAlgorithm('SHA512');
-  qz.security.setSignaturePromise(function(toSign) {
-    return function(resolve, reject) {
-      getQZPrivateKey().then(key =>
-        crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(toSign))
-      ).then(sig =>
-        resolve(btoa(String.fromCharCode(...new Uint8Array(sig))))
-      ).catch(reject);
-    };
-  });
-}
 
 function loadPrinterSettings() {
   const saved = localStorage.getItem(QZ_PRINTER_KEY);
@@ -94,7 +26,6 @@ async function qzConnect() {
 // Connect once on page load and auto-reconnect if dropped.
 function qzAutoSetup() {
   if (typeof qz === 'undefined') return;
-  setupQZSecurity();
   qz.websocket.setClosedCallbacks(function() {
     setTimeout(function() {
       if (typeof qz !== 'undefined' && !qz.websocket.isActive()) {
