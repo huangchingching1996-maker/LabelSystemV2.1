@@ -1,6 +1,85 @@
 // ── QZ Tray Integration ──
 const QZ_PRINTER_KEY = 'nls_printer_settings_v1';
 
+// ── QZ Tray Certificate Signing ──
+// Signed requests let QZ Tray auto-allow connections without the Action Required dialog.
+// First-time use: trust the certificate when QZ Tray asks, then it's permanent.
+const QZ_CERT = `-----BEGIN CERTIFICATE-----
+MIIC0jCCAboCCQCFwdEPf7+hojANBgkqhkiG9w0BAQsFADArMRQwEgYDVQQDDAtM
+YWJlbFN5c3RlbTETMBEGA1UECgwKWXVaaGVuWmhhaTAeFw0yNjA0MjgxMDM5NTNa
+Fw0zNjA0MjUxMDM5NTNaMCsxFDASBgNVBAMMC0xhYmVsU3lzdGVtMRMwEQYDVQQK
+DApZdVpoZW5aaGFpMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmfnJ
+CDn8slTtazxNdxtHICNX1G6sbiujyCa6TKZqT9C0D0a2F9FQpfCA5rVjjtuFwrme
+zmEIjsyLIRJKWLvzkKrZsIBaN33Wbj/bHH0SAWlaImUgql38eivflzIAwqP7Wxkz
+Q5Q5pASeOWcRun2EKzVOn6W6/zN+jw5zD4Kg5fMjNM0nWHirrwYWMd61xcs0I4gf
+KqcPWVydIVcIpBnygiIxClzUE4fnsoB637kcgJGsOXrh2HBD4++elaJzNp1fRmgr
+/ec++F1ZKdRdbKEWHJnX/6Pd0lmi/rsDQ0KC7EbdbQZ7AJ9ISc4Kq/ET07t5YgUk
+RWPqt5LJjJXchs34MwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBWK+Go23hWWoBk
+ixkmOhotZOrJPPzippxjhXeQwnKS/l6t5XEmHYRvmzKRkZYPeWS6ZzP5OUu6Djkb
+09h1XXNFRjMEjtYTkABJwaQJxTuLuxvp2y3SdewkYTbFwcWaQfeJ5f/BuktGZbXY
+6EO3+W2BXpcB1PmA09aR1bzP6nC/1lJQ/I1l2JQYe49f47vZE/fxwbENror5Y2XF
+4zapI6/XL4lRF5W/Z89VUU7R/u0qD1cI224ZrBrTYPGow9e/skC3S2oOFOZmEvbk
+OVRZtXjfWVY3cin5VAJj/gEjY9XrsxAJXf5BpCSMz4+s9o1o1CGvA3l5uEcSIE6Y
+hLKWZ41r
+-----END CERTIFICATE-----`;
+
+const QZ_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCZ+ckIOfyyVO1r
+PE13G0cgI1fUbqxuK6PIJrpMpmpP0LQPRrYX0VCl8IDmtWOO24XCuZ7OYQiOzIsh
+EkpYu/OQqtmwgFo3fdZuP9scfRIBaVoiZSCqXfx6K9+XMgDCo/tbGTNDlDmkBJ45
+ZxG6fYQrNU6fpbr/M36PDnMPgqDl8yM0zSdYeKuvBhYx3rXFyzQjiB8qpw9ZXJ0h
+VwikGfKCIjEKXNQTh+eygHrfuRyAkaw5euHYcEPj756VonM2nV9GaCv95z74XVkp
+1F1soRYcmdf/o93SWaL+uwNDQoLsRt1tBnsAn0hJzgqr8RPTu3liBSRFY+q3ksmM
+ldyGzfgzAgMBAAECggEAPXbBcgA7yDAwqfrjbWU9Ki4RlGItgLj44x/ahFh13bCQ
+//wZGj7a87KisfW8bT1iEs4n/3gqg15RN31moi881gXtahCCct5Pp6jj3WZrtpaI
+fWxi8r8b1uUGlwNF3Gy7HK1dkl9r9vZE9uMW55vNE7Zu0TnGALNclNyOv6VEdyXN
+5yM2hUVnAZw/CUVEGr+laKc8e18xN6397Zm0MJHeN6fOYZiJhaCY7l8Kk95BdGNr
+89vrrFcWlN4bcjt3c/VQ8a9wjs0Sg0DZBcg8KpxtxygkZP/4r0X507KtrlOECkeL
+IEXaA3sOtgC57yOQyPZdf9bpmAMxitKRboBgFjWQgQKBgQDIcZ10tWuA/jfZGmbY
+l/qsiM0oSZH5wPf625ElnC71o/Yhaw28gCXvK8+HKM2fhbpSzmv1r2hynw3E64ve
+Pd93p8v9eWyNFdq182KnQLaenZfLvbBU1QkdxQzOeegui8QW5WmtgpqnW/AJhuho
+TPOflcTgDXdphUbkFoQz3zm+QQKBgQDEpw08hT7Q43GDnvTDX9I7GRW+YZlrIdHG
+q0W8ukJYdJ/1+G1FBKs/1/XmzGkcrwOdpnA0j6JrlnesgrFBaxufPFv8bsJK8ALG
+2HONQnc87wEm6X7+ALkliRhbMd7XkG9O3Sr5apfSNWo47HVq7UXsY28Ti7q9W6Es
+zBiAwM9BcwKBgBqyj09RLq1yrsua6aHltDywx+qayfejDSR7hDynLdYH7auLz7uQ
+sfzGMBEHjUO3ExceaWDC6T2DE9lrqiiCwzXzwobTWnL8OzJK5ZPzWZ+MzAAWFttl
+uJ4fddI2iIdSlF6cVdQHdkPeSf1q25+wyC40S5GwGXyThNqyaQ9jpxRBAoGAGXLI
+yrkvjNayHOdYI2RmD1HKt41nzi5dOEl3x9mOtmW5QZp5gYH+K0/mOYzgWV7op+Ef
+Ch5AVY3uRLvQ9ndG5s9n0/39VLdElLj0EyazyYXgb0muLm6nhwz7wulsPhcp4FnM
+suQxa3mQGne3JjQ4ZUPk3vGpI9IUxHhQ/3B0IbMCgYEAiltTap/S8Ny9tN6QOCsL
+ARqM2KK0Ipp4+vYCpLXKPClskksnLQl3W/+Myh/TsrpD8qX36lfg+csmdF38ATSq
+SH//z05L8yGVanwbDif4IKVO/sbnOz+uM9ChN0SXaGhD7JLeSPZljyPnrvqCn+Be
+QqyWJFf+pDM4Cx9ImO96p6I=
+-----END PRIVATE KEY-----`;
+
+function pemToArrayBuffer(pem) {
+  const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s/g, '');
+  const bin = atob(b64);
+  const buf = new ArrayBuffer(bin.length);
+  const view = new Uint8Array(buf);
+  for (let i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
+  return buf;
+}
+
+function qzSetupSecurity() {
+  qz.security.setCertificatePromise(function(resolve) {
+    resolve(QZ_CERT);
+  });
+  qz.security.setSignaturePromise(function(toSign) {
+    return function(resolve, reject) {
+      crypto.subtle.importKey(
+        'pkcs8', pemToArrayBuffer(QZ_PRIVATE_KEY),
+        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-512' },
+        false, ['sign']
+      ).then(key =>
+        crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(toSign))
+      ).then(sig =>
+        resolve(btoa(String.fromCharCode(...new Uint8Array(sig))))
+      ).catch(reject);
+    };
+  });
+}
+
 
 function loadPrinterSettings() {
   const saved = localStorage.getItem(QZ_PRINTER_KEY);
@@ -26,6 +105,7 @@ async function qzConnect() {
 // Connect once on page load and auto-reconnect if dropped.
 function qzAutoSetup() {
   if (typeof qz === 'undefined') return;
+  qzSetupSecurity();
   qz.websocket.setClosedCallbacks(function() {
     setTimeout(function() {
       if (typeof qz !== 'undefined' && !qz.websocket.isActive()) {
