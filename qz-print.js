@@ -93,14 +93,6 @@ xtKsm3bqQFDHRrPcsBX4nanrw9DzkpH1k/I3WMSdGqkDAR3DtL7yXTJXJo2Sbrp5
 EjzSn7DcDE1tL2En/tSVXeUY
 -----END PRIVATE KEY-----`;
 
-function pemToArrayBuffer(pem) {
-  const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s/g, '');
-  const bin = atob(b64);
-  const buf = new ArrayBuffer(bin.length);
-  const view = new Uint8Array(buf);
-  for (let i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i);
-  return buf;
-}
 
 const QZ_KEY_STORAGE = 'nls_qz_keys_v1';
 
@@ -116,21 +108,21 @@ function qzSetupSecurity() {
   const cert = keys.cert || QZ_CERT;
   const pkey = keys.privateKey || QZ_PRIVATE_KEY;
 
-  qz.security.setSignatureAlgorithm('SHA512');
+  try { qz.security.setSignatureAlgorithm('SHA512'); } catch(e) {}
   qz.security.setCertificatePromise(function(resolve) {
     resolve(cert);
   });
   qz.security.setSignaturePromise(function(toSign) {
     return function(resolve, reject) {
-      crypto.subtle.importKey(
-        'pkcs8', pemToArrayBuffer(pkey),
-        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-512' },
-        false, ['sign']
-      ).then(key =>
-        crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(toSign))
-      ).then(sig =>
-        resolve(btoa(String.fromCharCode(...new Uint8Array(sig))))
-      ).catch(reject);
+      try {
+        var pk  = KEYUTIL.getKey(pkey);
+        var sig = new KJUR.crypto.Signature({ alg: 'SHA512withRSA' });
+        sig.init(pk);
+        sig.updateString(toSign);
+        resolve(stob64(hextorstr(sig.sign())));
+      } catch(e) {
+        reject(e);
+      }
     };
   });
 }
