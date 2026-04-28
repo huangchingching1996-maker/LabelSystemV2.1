@@ -1,47 +1,48 @@
-const http = require('http');
-const fs   = require('fs');
-const path = require('path');
-const os   = require('os');
-const { exec } = require('child_process');
+const http   = require('http');
+const fs     = require('fs');
+const path   = require('path');
+const os     = require('os');
+const { execFile } = require('child_process');
 
 const PORT   = 8765;
 const ORIGIN = 'https://huangchingching1996-maker.github.io';
 
-// Keep one persistent PowerShell process to avoid startup lag
-let psProcess = null;
-let psReady   = false;
-const psQueue = [];
-
-function startPersistentPS() {
-  const { spawn } = require('child_process');
-  psProcess = spawn('powershell', ['-NoExit', '-Command', '-'], {
-    stdio: ['pipe', 'pipe', 'pipe']
-  });
-  psProcess.stdout.on('data', d => {
-    const s = d.toString();
-    if (s.includes('__DONE__') && psQueue.length) {
-      const { resolve } = psQueue.shift();
-      resolve();
-      runNext();
-    }
-  });
-  psProcess.on('exit', () => { psProcess = null; psReady = false; });
-  // warm up
-  psProcess.stdin.write('Add-Type -AssemblyName System.Drawing\nWrite-Host "__DONE__"\n');
-  psProcess.stdout.once('data', () => { psReady = true; runNext(); });
-}
-
-function runNext() {
-  if (!psQueue.length || !psReady) return;
-  const { script } = psQueue[0];
-  psProcess.stdin.write(script + '\nWrite-Host "__DONE__"\n');
-}
-
-function runPS(script) {
+function printImage(imgFile, printer, copies, size) {
   return new Promise((resolve, reject) => {
-    if (!psProcess) startPersistentPS();
-    psQueue.push({ script, resolve, reject });
-    if (psReady && psQueue.length === 1) runNext();
+    const isSmall = size === 'small';
+    // Draw at exact physical size in mm, so no stretching regardless of paper config
+    const drawCmd = isSmall
+      ? `$g.DrawImage($bmp, [float]0, [float]0, [float]35, [float]25)`
+      : `$g.DrawImage($bmp, [float]0, [float]1.5, [float]55, [float]55)`;
+
+    const psFile = imgFile.replace('.png', '.ps1');
+    const imgPath = imgFile.replace(/\\/g, '\\\\');
+
+    const script = `
+Add-Type -AssemblyName System.Drawing
+$bmp = [System.Drawing.Bitmap]::new('${imgPath}')
+$pd  = [System.Drawing.Printing.PrintDocument]::new()
+$pd.PrinterSettings.PrinterName = '${printer}'
+$pd.PrinterSettings.Copies      = ${copies}
+$pd.add_PrintPage({
+  param($s, $e)
+  $g = $e.Graphics
+  $g.PageUnit = [System.Drawing.GraphicsUnit]::Millimeter
+  ${drawCmd}
+}.GetNewClosure())
+$pd.Print()
+$bmp.Dispose()
+$pd.Dispose()
+Write-Host "ok"
+`;
+    fs.writeFileSync(psFile, script, 'utf8');
+
+    execFile('powershell', ['-ExecutionPolicy', 'Bypass', '-File', psFile], (err, stdout) => {
+      fs.unlink(imgFile, () => {});
+      fs.unlink(psFile,  () => {});
+      if (err) reject(err);
+      else resolve();
+    });
   });
 }
 
@@ -58,39 +59,15 @@ http.createServer((req, res) => {
     req.on('end', async () => {
       try {
         const { image, printer, copies, size } = JSON.parse(body);
-
         const imgFile = path.join(os.tmpdir(), `label_${Date.now()}.png`);
         fs.writeFileSync(imgFile, Buffer.from(image, 'base64'));
 
-        const isSmall   = size === 'small';
-        const landscape = isSmall ? '$true' : '$false';
-        // margin top: 0 for small, 1.5mm for large (in hundredths of inch)
-        const topMargin = isSmall ? 0 : 6;
-        const imgPath   = imgFile.replace(/\\/g, '\\\\');
-
-        const ps = `
-$bmp = [System.Drawing.Bitmap]::new('${imgPath}')
-$pd  = [System.Drawing.Printing.PrintDocument]::new()
-$pd.PrinterSettings.PrinterName = '${printer}'
-$pd.PrinterSettings.Copies      = ${copies || 1}
-$pd.DefaultPageSettings.Landscape = ${landscape}
-$pd.DefaultPageSettings.Margins   = [System.Drawing.Printing.Margins]::new(0,${topMargin},0,0)
-$pd.add_PrintPage({
-  param($s,$e)
-  $e.Graphics.DrawImage($bmp, $e.PageBounds)
-}.GetNewClosure())
-$pd.Print()
-$bmp.Dispose()
-$pd.Dispose()
-`;
-        await runPS(ps);
-        fs.unlink(imgFile, () => {});
-        console.log(`列印完成：${printer} × ${copies || 1} 張`);
+        await printImage(imgFile, printer, copies || 1, size || 'large');
+        console.log(`✓ 列印完成：${printer} × ${copies || 1} 張`);
         res.writeHead(200);
         res.end(JSON.stringify({ ok: true }));
-
       } catch (e) {
-        console.error('列印失敗:', e.message);
+        console.error('✗ 列印失敗:', e.message);
         res.writeHead(500);
         res.end(JSON.stringify({ ok: false, error: e.message }));
       }
@@ -99,15 +76,12 @@ $pd.Dispose()
   }
 
   if (req.method === 'GET' && req.url === '/') {
-    res.writeHead(200);
-    res.end('列印伺服器運作中');
-    return;
+    res.writeHead(200); res.end('列印伺服器運作中'); return;
   }
 
   res.writeHead(404); res.end();
 
 }).listen(PORT, () => {
-  startPersistentPS();
   console.log('============================');
   console.log(' 列印伺服器已啟動');
   console.log(` http://localhost:${PORT}`);
