@@ -13,8 +13,8 @@ function doPreview() {
 
   const labelPxW = mm.w * PX_PER_MM;
   const labelPxH = mm.h * PX_PER_MM;
-  // Smaller preview: max 200px wide
-  const maxW  = Math.min(window.innerWidth * 0.5, 200);
+  // Preview size
+  const maxW  = Math.min(window.innerWidth * 0.5, 260);
   const maxH  = window.innerHeight * 0.3;
   const scale = Math.min(maxW / labelPxW, maxH / labelPxH, 2);
 
@@ -35,7 +35,7 @@ function doPreview() {
   document.getElementById('preview-info').innerHTML =
     `<div class="preview-info-item">
        <div class="preview-info-label">尺寸</div>
-       <div class="preview-info-value">${sizeText} · ${mm.w}×${mm.h} mm</div>
+       <div class="preview-info-value">${sizeText}</div>
      </div>
      <div class="preview-info-divider"></div>
      <div class="preview-info-item">
