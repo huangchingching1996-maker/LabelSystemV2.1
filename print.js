@@ -74,9 +74,6 @@ async function doPrintFromPreview() {
   const qty    = parseInt(qtyInput.value) || 1;
   const single = buildLabelHTML(selectedProduct, selectedSize);
 
-  const localOk = await printWithLocalServer(selectedSize, single, qty);
-  if (localOk) { closePreview(); qtyInput.value = 1; return; }
-
   const qzOk = await printWithQZ(selectedSize, single, qty);
   if (qzOk) {
     closePreview();
