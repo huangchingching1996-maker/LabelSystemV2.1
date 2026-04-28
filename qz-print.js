@@ -63,7 +63,25 @@ async function renderLabelToBase64(labelHTML, size) {
       backgroundColor: '#ffffff',
       logging:         false,
     });
-    return canvas.toDataURL('image/png').split(',')[1];
+
+    // Convert to true black & white before sending to printer.
+    // Eliminates grey antialiasing pixels that cause spotty/patchy text.
+    const bw  = document.createElement('canvas');
+    bw.width  = canvas.width;
+    bw.height = canvas.height;
+    const ctx = bw.getContext('2d');
+    ctx.drawImage(canvas, 0, 0);
+    const img  = ctx.getImageData(0, 0, bw.width, bw.height);
+    const data = img.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const lum = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      const val = lum > 180 ? 255 : 0;
+      data[i] = data[i+1] = data[i+2] = val;
+      data[i+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+
+    return bw.toDataURL('image/png').split(',')[1];
   } finally {
     document.body.removeChild(wrap);
   }
@@ -106,7 +124,6 @@ async function printWithQZ(size, labelHTML, qty) {
     units:   'mm',
     margins: isSmall ? { top: 0,   right: 0, bottom: 0, left: 0 }
                      : { top: 1.5, right: 0, bottom: 0, left: 0 },
-    colorType: 'blackwhite',
     copies:    qty,
   });
 
