@@ -49,14 +49,17 @@ async function renderLabelToBase64(labelHTML, size) {
   const w = isSmall ? 132 : 208;
   const h = isSmall ? 94  : 208;
 
-  // Render at exactly the printer's native dot count (203 DPI) so QZ sends
-  // the image 1-dot-per-pixel with no scaling — eliminates blur from resampling.
-  const mmW   = isSmall ? 35 : 55;
-  const dotW  = Math.round(mmW * 203 / 25.4);   // 280 (small) | 440 (large)
-  const scale = dotW / w;                         // ≈ 2.12
+    // Target: exactly 203 DPI dot count so QZ sends 1px = 1 dot (no scaling).
+  // Supersampling at 2× then downsampling gives smoother greyscale values
+  // before the B&W threshold, producing sharper edges than rendering at 1×.
+  const mmW  = isSmall ? 35 : 55;
+  const dotW = Math.round(mmW * 203 / 25.4);          // 280 (small) | 440 (large)
+  const dotH = Math.round(h * (dotW / w));
+  const scale = (dotW / w) * 2;                        // 2× supersampling ≈ 4.24
 
   const wrap = document.createElement('div');
-  wrap.style.cssText = `position:fixed;left:-9999px;top:0;width:${w}px;height:${h}px;overflow:hidden;background:#fff;`;
+  // Disable subpixel font rendering so text pixels are harder-edged going in.
+  wrap.style.cssText = `position:fixed;left:-9999px;top:0;width:${w}px;height:${h}px;overflow:hidden;background:#fff;-webkit-font-smoothing:none;`;
   wrap.innerHTML = labelHTML;
   document.body.appendChild(wrap);
 
@@ -70,24 +73,27 @@ async function renderLabelToBase64(labelHTML, size) {
       logging:         false,
     });
 
-    // Convert to true black & white before sending to printer.
-    // Eliminates grey antialiasing pixels that cause spotty/patchy text.
-    const bw  = document.createElement('canvas');
-    bw.width  = canvas.width;
-    bw.height = canvas.height;
-    const ctx = bw.getContext('2d');
-    ctx.drawImage(canvas, 0, 0);
-    const img  = ctx.getImageData(0, 0, bw.width, bw.height);
+    // Downsample 2× canvas to exact printer dots with high-quality interpolation.
+    const ds = document.createElement('canvas');
+    ds.width  = dotW;
+    ds.height = dotH;
+    const dsCtx = ds.getContext('2d');
+    dsCtx.imageSmoothingEnabled = true;
+    dsCtx.imageSmoothingQuality = 'high';
+    dsCtx.drawImage(canvas, 0, 0, dotW, dotH);
+
+    // Convert to pure B&W — threshold 160 keeps thin strokes intact.
+    const img  = dsCtx.getImageData(0, 0, dotW, dotH);
     const data = img.data;
     for (let i = 0; i < data.length; i += 4) {
       const lum = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-      const val = lum > 180 ? 255 : 0;
+      const val = lum > 160 ? 255 : 0;
       data[i] = data[i+1] = data[i+2] = val;
       data[i+3] = 255;
     }
-    ctx.putImageData(img, 0, 0);
+    dsCtx.putImageData(img, 0, 0);
 
-    return bw.toDataURL('image/png').split(',')[1];
+    return ds.toDataURL('image/png').split(',')[1];
   } finally {
     document.body.removeChild(wrap);
   }
