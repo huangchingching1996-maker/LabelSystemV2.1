@@ -13,31 +13,32 @@ function doPreview() {
 
   const labelPxW = mm.w * PX_PER_MM;
   const labelPxH = mm.h * PX_PER_MM;
-  const maxW  = Math.min(window.innerWidth * 0.8, 480);
-  const maxH  = window.innerHeight * 0.55;
-  const scale = Math.min(maxW / labelPxW, maxH / labelPxH, 4);
+  // Smaller preview: max 200px wide
+  const maxW  = Math.min(window.innerWidth * 0.5, 200);
+  const maxH  = window.innerHeight * 0.3;
+  const scale = Math.min(maxW / labelPxW, maxH / labelPxH, 2);
 
   const scaledW = Math.round(labelPxW * scale);
   const scaledH = Math.round(labelPxH * scale);
 
-  const sizeText = selectedSize === 'large'
-    ? `大標 ${mm.w}×${mm.h}mm` : `小標 ${mm.w}×${mm.h}mm`;
-  document.getElementById('preview-label').textContent =
-    `${selectedProduct.商品名稱} · ${sizeText} · ${qty} 張`;
+  const sizeText = selectedSize === 'large' ? '大標' : '小標';
+  const dimText  = `${mm.w}×${mm.h} mm`;
 
-  const previewCount = Math.min(qty, 3);
-  const labelsHTML = Array(previewCount).fill(0).map(() =>
-    `<div style="width:${scaledW}px;height:${scaledH}px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
-      <div style="display:inline-block;transform:scale(${scale});transform-origin:top left;">
-        <div class="label-wrapper">${single}</div>
-      </div>
-    </div>`
-  ).join('');
+  document.getElementById('preview-label').innerHTML =
+    `<div class="preview-product-name">${selectedProduct.商品名稱}</div>
+     <div class="preview-meta">
+       <span class="preview-badge">${sizeText}<span class="preview-dim">${dimText}</span></span>
+       <span class="preview-qty">${qty}<span class="preview-qty-label">張</span></span>
+     </div>`;
 
   document.getElementById('preview-labels-wrap').innerHTML =
     `<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
-      ${labelsHTML}
-      ${qty > 3 ? `<div style="font-size:12px;color:#888;width:100%;text-align:center;">共 ${qty} 張，預覽前 3 張</div>` : ''}
+      <div style="width:${scaledW}px;height:${scaledH}px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.2);border-radius:4px;">
+        <div style="display:inline-block;transform:scale(${scale});transform-origin:top left;">
+          <div class="label-wrapper">${single}</div>
+        </div>
+      </div>
+      ${qty > 1 ? `<div style="font-size:12px;color:#888;width:100%;text-align:center;">預覽第 1 張，共 ${qty} 張</div>` : ''}
     </div>`;
 
   document.getElementById('preview-overlay').classList.add('open');
