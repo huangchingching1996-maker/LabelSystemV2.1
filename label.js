@@ -132,19 +132,21 @@ function buildLabelHTML(product, size) {
         ${notes ? `<div class="ll-row"><span class="ll-val">${notes}</span></div>` : ''}
       </div>
       <div class="ll-right">
-        <div class="ll-nt-title">營 養 標 示</div>
-        <div class="ll-nt-serving">
-          每一份量 ${p['每份重量(公克)']||''} 公克<br>
-          本包裝含 ${p['本包裝含幾份']||''} 份
+        <div class="ll-nt-box">
+          <div class="ll-nt-title">營 養 標 示</div>
+          <div class="ll-nt-serving">
+            每一份量 ${p['每份重量(公克)']||''} 公克<br>
+            本包裝含 ${p['本包裝含幾份']||''} 份
+          </div>
+          <table class="ll-nt-table">
+            <tr class="nt-header-row">
+              <th></th>
+              <th>每份</th>
+              <th>每100克</th>
+            </tr>
+            ${ntTableRows}
+          </table>
         </div>
-        <table class="ll-nt-table">
-          <tr class="nt-header-row">
-            <th></th>
-            <th>每份</th>
-            <th>每100克</th>
-          </tr>
-          ${ntTableRows}
-        </table>
         <div class="ll-barcode-wrap">
           ${svgL}
           <div class="ll-barcode-num">${bcCodeL}</div>
