@@ -7,6 +7,44 @@ const { exec } = require('child_process');
 const PORT   = 8765;
 const ORIGIN = 'https://huangchingching1996-maker.github.io';
 
+// Keep one persistent PowerShell process to avoid startup lag
+let psProcess = null;
+let psReady   = false;
+const psQueue = [];
+
+function startPersistentPS() {
+  const { spawn } = require('child_process');
+  psProcess = spawn('powershell', ['-NoExit', '-Command', '-'], {
+    stdio: ['pipe', 'pipe', 'pipe']
+  });
+  psProcess.stdout.on('data', d => {
+    const s = d.toString();
+    if (s.includes('__DONE__') && psQueue.length) {
+      const { resolve } = psQueue.shift();
+      resolve();
+      runNext();
+    }
+  });
+  psProcess.on('exit', () => { psProcess = null; psReady = false; });
+  // warm up
+  psProcess.stdin.write('Add-Type -AssemblyName System.Drawing\nWrite-Host "__DONE__"\n');
+  psProcess.stdout.once('data', () => { psReady = true; runNext(); });
+}
+
+function runNext() {
+  if (!psQueue.length || !psReady) return;
+  const { script } = psQueue[0];
+  psProcess.stdin.write(script + '\nWrite-Host "__DONE__"\n');
+}
+
+function runPS(script) {
+  return new Promise((resolve, reject) => {
+    if (!psProcess) startPersistentPS();
+    psQueue.push({ script, resolve, reject });
+    if (psReady && psQueue.length === 1) runNext();
+  });
+}
+
 http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin',  ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -17,55 +55,49 @@ http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/print') {
     let body = '';
     req.on('data', chunk => body += chunk);
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
-        const { image, printer, copies } = JSON.parse(body);
+        const { image, printer, copies, size } = JSON.parse(body);
 
-        // Save PNG to temp file
         const imgFile = path.join(os.tmpdir(), `label_${Date.now()}.png`);
         fs.writeFileSync(imgFile, Buffer.from(image, 'base64'));
 
-        // PowerShell script to print the image
-        const psFile = imgFile.replace('.png', '.ps1');
+        const isSmall   = size === 'small';
+        const landscape = isSmall ? '$true' : '$false';
+        // margin top: 0 for small, 1.5mm for large (in hundredths of inch)
+        const topMargin = isSmall ? 0 : 6;
+        const imgPath   = imgFile.replace(/\\/g, '\\\\');
+
         const ps = `
-Add-Type -AssemblyName System.Drawing
-$bmp = [System.Drawing.Bitmap]::new('${imgFile.replace(/\\/g, '\\\\')}')
+$bmp = [System.Drawing.Bitmap]::new('${imgPath}')
 $pd  = [System.Drawing.Printing.PrintDocument]::new()
 $pd.PrinterSettings.PrinterName = '${printer}'
 $pd.PrinterSettings.Copies      = ${copies || 1}
+$pd.DefaultPageSettings.Landscape = ${landscape}
+$pd.DefaultPageSettings.Margins   = [System.Drawing.Printing.Margins]::new(0,${topMargin},0,0)
 $pd.add_PrintPage({
-  param($s, $e)
-  $e.Graphics.DrawImage($bmp, $e.MarginBounds)
+  param($s,$e)
+  $e.Graphics.DrawImage($bmp, $e.PageBounds)
 }.GetNewClosure())
 $pd.Print()
 $bmp.Dispose()
 $pd.Dispose()
 `;
-        fs.writeFileSync(psFile, ps);
-
-        exec(`powershell -ExecutionPolicy Bypass -File "${psFile}"`, (err) => {
-          fs.unlink(imgFile, () => {});
-          fs.unlink(psFile,  () => {});
-          if (err) {
-            console.error('列印失敗:', err.message);
-            res.writeHead(500);
-            res.end(JSON.stringify({ ok: false, error: err.message }));
-          } else {
-            console.log(`列印完成：${printer} × ${copies || 1} 張`);
-            res.writeHead(200);
-            res.end(JSON.stringify({ ok: true }));
-          }
-        });
+        await runPS(ps);
+        fs.unlink(imgFile, () => {});
+        console.log(`列印完成：${printer} × ${copies || 1} 張`);
+        res.writeHead(200);
+        res.end(JSON.stringify({ ok: true }));
 
       } catch (e) {
-        res.writeHead(400);
+        console.error('列印失敗:', e.message);
+        res.writeHead(500);
         res.end(JSON.stringify({ ok: false, error: e.message }));
       }
     });
     return;
   }
 
-  // Health check
   if (req.method === 'GET' && req.url === '/') {
     res.writeHead(200);
     res.end('列印伺服器運作中');
@@ -75,6 +107,7 @@ $pd.Dispose()
   res.writeHead(404); res.end();
 
 }).listen(PORT, () => {
+  startPersistentPS();
   console.log('============================');
   console.log(' 列印伺服器已啟動');
   console.log(` http://localhost:${PORT}`);

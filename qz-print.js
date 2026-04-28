@@ -78,7 +78,7 @@ async function printWithLocalServer(size, labelHTML, qty) {
     const res    = await fetch('http://localhost:8765/print', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ image: base64, printer: printerName, copies: qty }),
+      body:    JSON.stringify({ image: base64, printer: printerName, copies: qty, size }),
     });
     if (!res.ok) return false;
     const result = await res.json();
