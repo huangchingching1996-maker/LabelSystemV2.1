@@ -69,6 +69,25 @@ async function renderLabelToBase64(labelHTML, size) {
   }
 }
 
+async function printWithLocalServer(size, labelHTML, qty) {
+  const ps          = loadPrinterSettings();
+  const printerName = size === 'large' ? ps.large : ps.small;
+  if (!printerName) return false;
+  try {
+    const base64 = await renderLabelToBase64(labelHTML, size);
+    const res    = await fetch('http://localhost:8765/print', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ image: base64, printer: printerName, copies: qty }),
+    });
+    if (!res.ok) return false;
+    const result = await res.json();
+    return result.ok === true;
+  } catch {
+    return false;
+  }
+}
+
 async function printWithQZ(size, labelHTML, qty) {
   const connected = await qzConnect();
   if (!connected) return false;
