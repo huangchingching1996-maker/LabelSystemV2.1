@@ -51,7 +51,8 @@ function ean8SVG(code8, width, height) {
 
 function buildLabelHTML(product, size) {
   const p = product;
-  const showExpiry = document.getElementById('show-expiry')?.checked ?? true;
+  const showExpiry     = document.getElementById('show-expiry')?.checked ?? true;
+  const showShelfLife  = document.getElementById('show-shelf-life')?.checked ?? true;
 
   const isEAN13 = p.條碼格式 === 'EAN13';
 
@@ -70,7 +71,7 @@ function buildLabelHTML(product, size) {
         <div class="sl-name">${p.商品名稱}</div>
         <div class="sl-sub">${p['葷素別']||''}</div>
         <div class="sl-info">${p.保存方式||''}</div>
-        <div class="sl-info">保存天數:${p.保存天數||''}&nbsp;&nbsp;天</div>
+        ${showShelfLife ? `<div class="sl-info">保存天數:${p.保存天數||''}&nbsp;&nbsp;天</div>` : ''}
         ${showExpiry ? `<div class="sl-info">有效日期:${expiry}</div>` : `<div class="sl-info"></div>`}
         ${p.豬肉原產地==='是' ? `<div class="sl-info">豬肉原料原產地:臺灣</div>` : ''}
       </div>
@@ -125,7 +126,7 @@ function buildLabelHTML(product, size) {
         ${p.成分 ? `<div class="ll-row" style="display:block"><span class="ll-label">成分:</span><span class="ll-val" style="display:inline">${p.成分}</span></div>` : ''}
         ${p['容量'] ? `<div class="ll-row"><span class="ll-label">容量:</span><span class="ll-val">${p['容量']} 公克</span></div>` : ''}
         ${p.過敏原 ? `<div class="ll-row" style="display:block"><span class="ll-label">過敏原:</span><span class="ll-val" style="display:inline">${p.過敏原==='無'?'無':'本產品含有'+p.過敏原.replace(/[、,，]/g,',')}</span></div>` : ''}
-        <div class="ll-row"><span class="ll-label">保存期限:</span><span class="ll-val">${p.保存天數||''}&nbsp;&nbsp;天</span></div>
+        ${showShelfLife ? `<div class="ll-row"><span class="ll-label">保存期限:</span><span class="ll-val">${p.保存天數||''}&nbsp;&nbsp;天</span></div>` : ''}
         ${showExpiry ? `<div class="ll-row" style="flex-wrap:nowrap;white-space:nowrap"><span class="ll-label">有效日期:</span><span class="ll-val">${expiryL}</span></div>` : `<div class="ll-row"></div>`}
         ${p.保存方式 ? `<div class="ll-row"><span class="ll-label">保存方式:</span><span class="ll-val">${p.保存方式}</span></div>` : ''}
         <div class="ll-row"><span class="ll-label">製造商:</span><span class="ll-val">玉珍齋</span></div>
