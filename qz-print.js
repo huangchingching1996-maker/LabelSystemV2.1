@@ -55,28 +55,15 @@ zJs77PzNDdHCKLJ46g/UGrccEA==
 -----END PRIVATE KEY-----`;
 
 
-const QZ_KEY_STORAGE = 'nls_qz_keys_v1';
-
-function loadQZKeys() {
-  try { return JSON.parse(localStorage.getItem(QZ_KEY_STORAGE)) || {}; } catch { return {}; }
-}
-function saveQZKeys(obj) {
-  localStorage.setItem(QZ_KEY_STORAGE, JSON.stringify(obj));
-}
-
 function qzSetupSecurity() {
-  const keys = loadQZKeys();
-  const cert = keys.cert || QZ_CERT;
-  const pkey = keys.privateKey || QZ_PRIVATE_KEY;
-
   try { qz.security.setSignatureAlgorithm('SHA512'); } catch(e) {}
   qz.security.setCertificatePromise(function(resolve) {
-    resolve(cert);
+    resolve(QZ_CERT);
   });
   qz.security.setSignaturePromise(function(toSign) {
     return function(resolve, reject) {
       try {
-        var pk  = KEYUTIL.getKey(pkey);
+        var pk  = KEYUTIL.getKey(QZ_PRIVATE_KEY);
         var sig = new KJUR.crypto.Signature({ alg: 'SHA512withRSA' });
         sig.init(pk);
         sig.updateString(toSign);
@@ -239,36 +226,8 @@ async function printWithQZ(size, labelHTML, qty) {
 
 // ── Printer Settings Page ──
 function renderPrinterSettingsPage() {
-  const ps   = loadPrinterSettings();
-  const keys = loadQZKeys();
+  const ps = loadPrinterSettings();
   return `
-    <div class="settings-section">
-      <div class="settings-section-title">QZ Tray 簽名金鑰</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.7;">
-        將 <code style="background:var(--bg);padding:1px 5px;border-radius:3px;">%APPDATA%\\qz\\digital-certificate.pem</code> 的內容貼到「憑證」欄位，<br>
-        將 <code style="background:var(--bg);padding:1px 5px;border-radius:3px;">%APPDATA%\\qz\\private-key.pem</code> 的內容貼到「私鑰」欄位，<br>
-        儲存後重新整理頁面即可解決 Action Required 對話框。
-      </div>
-      <div class="settings-row" style="align-items:flex-start;">
-        <span class="settings-label" style="padding-top:4px;">憑證</span>
-        <textarea id="qz-cert-input" rows="4"
-          style="flex:1;font-size:10px;font-family:monospace;resize:vertical;padding:6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text-primary);"
-          placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
-        >${keys.cert || ''}</textarea>
-      </div>
-      <div class="settings-row" style="align-items:flex-start;margin-top:8px;">
-        <span class="settings-label" style="padding-top:4px;">私鑰</span>
-        <textarea id="qz-key-input" rows="4"
-          style="flex:1;font-size:10px;font-family:monospace;resize:vertical;padding:6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text-primary);"
-          placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"
-        >${keys.privateKey || ''}</textarea>
-      </div>
-      <div style="margin-top:8px;display:flex;gap:8px;">
-        <button class="btn btn-primary" style="padding:5px 16px;font-size:12px;" onclick="saveQZKeysFromUI()">儲存金鑰</button>
-        <span id="qz-keys-saved" style="font-size:12px;color:var(--text-muted);align-self:center;"></span>
-      </div>
-    </div>
-
     <div class="settings-section">
       <div class="settings-section-title">QZ Tray 連線</div>
       <div class="settings-row">
@@ -389,11 +348,3 @@ function onPrinterChange() {
   });
 }
 
-function saveQZKeysFromUI() {
-  const cert = document.getElementById('qz-cert-input')?.value.trim() || '';
-  const key  = document.getElementById('qz-key-input')?.value.trim() || '';
-  saveQZKeys({ cert, privateKey: key });
-  const msg = document.getElementById('qz-keys-saved');
-  if (msg) { msg.textContent = '已儲存，請重新整理頁面'; }
-  if (typeof qz !== 'undefined') qzSetupSecurity();
-}
