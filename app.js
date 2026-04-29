@@ -143,12 +143,10 @@ function selectProduct(id) {
 function renderPrintPanel() {
   const info = document.getElementById('selected-info');
   const printBtn = document.getElementById('print-btn');
-  const previewBtn = document.getElementById('preview-btn');
 
   if(!selectedProduct) {
     info.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">請先選擇商品</div>';
     printBtn.disabled = true;
-    previewBtn.disabled = true;
     return;
   }
   const p = selectedProduct;
@@ -158,7 +156,6 @@ function renderPrintPanel() {
     <div class="barcode">${p.條碼內容 || ''} · #${p.商品編號}</div>
   `;
   printBtn.disabled = false;
-  previewBtn.disabled = false;
 }
 
 // ── Size & Qty ──

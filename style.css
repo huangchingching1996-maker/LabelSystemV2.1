@@ -367,22 +367,6 @@ body {
   cursor: not-allowed;
 }
 
-.preview-btn {
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  margin-top: 8px;
-}
-.preview-btn:hover { background: var(--bg); color: var(--text-primary); border-color: var(--text-muted); }
-.preview-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .empty-state {
   grid-column: 1/-1;
@@ -1036,15 +1020,14 @@ body {
     gap: 8px;
     width: 100%;
   }
-  .print-actions .btn-primary,
-  .print-actions .preview-btn { flex: 1; }
+  .print-actions .btn-primary { flex: 1; }
   .cat-panel { grid-template-columns: repeat(4, 1fr); }
   .print-footer {
     display: flex;
     gap: 8px;
     padding: 10px 12px;
   }
-  .print-btn, .preview-btn { flex: 1; }
+  .print-btn { flex: 1; }
   .print-body { overflow-y: auto; }
 }
 /* ── Settings View ── */
