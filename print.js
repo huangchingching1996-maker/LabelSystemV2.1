@@ -48,6 +48,8 @@ function doPreview() {
 
 function closePreview() {
   document.getElementById('preview-overlay').classList.remove('open');
+  const printBtn = document.querySelector('.preview-footer .btn-primary');
+  if(printBtn) { printBtn.disabled = false; printBtn.textContent = '確認列印'; }
 }
 
 // ── Print ──
