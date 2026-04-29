@@ -48,6 +48,7 @@ function renderAdminTable() {
       ${td(p['鈉(每100克)'])}
       <td style="white-space:nowrap">
         <button class="edit-btn" onclick="openEditModal(${realIdx})">編輯</button>
+        <button class="edit-btn" style="margin-left:6px;background:#DBEAFE;color:#1D4ED8;border-color:#BFDBFE" onclick="copyProduct(${realIdx})">複製</button>
         <button class="edit-btn" style="margin-left:6px;background:#FEE2E2;color:#B91C1C;border-color:#FECACA" onclick="openDeleteModal(${realIdx})">刪除</button>
       </td>
     </tr>`;
@@ -161,6 +162,18 @@ function confirmDelete() {
   renderCats();
   closeDeleteModal();
   showToast('已刪除', 'success');
+}
+
+// ── Copy ──
+function copyProduct(idx) {
+  const copy = JSON.parse(JSON.stringify(products[idx]));
+  copy.商品編號 = products.length ? Math.max(...products.map(p => p.商品編號)) + 1 : 1;
+  copy.商品名稱 = (copy.商品名稱 || '') + '（複製）';
+  products.push(copy);
+  saveProducts();
+  renderAdminTable();
+  renderCats();
+  showToast('已複製', 'success');
 }
 
 function saveEdit() {
