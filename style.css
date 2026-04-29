@@ -491,6 +491,29 @@ body {
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: #f9f8f6; }
 
+/* 凍結前兩欄：商品編號、商品名稱 */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  min-width: 68px;
+  background: var(--surface);
+  z-index: 3;
+}
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+  position: sticky;
+  left: 68px;
+  min-width: 140px;
+  background: var(--surface);
+  z-index: 3;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.08);
+}
+.data-table th:nth-child(1) { background: #8B1A1A; z-index: 4; }
+.data-table th:nth-child(2) { background: #8B1A1A; z-index: 4; }
+.data-table tr:hover td:nth-child(1),
+.data-table tr:hover td:nth-child(2) { background: #f9f8f6; }
+
 .tag {
   display: inline-block;
   padding: 2px 8px;
