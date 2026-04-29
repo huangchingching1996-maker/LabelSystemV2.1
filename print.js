@@ -70,6 +70,9 @@ function doPrint() {
 
 async function doPrintFromPreview() {
   if(!selectedProduct) return;
+  const printBtn = document.querySelector('.preview-footer .btn-primary');
+  if(printBtn) { printBtn.disabled = true; printBtn.textContent = '列印中…'; }
+
   const qtyInput = document.getElementById('qty-input');
   const qty    = parseInt(qtyInput.value) || 1;
   const single = buildLabelHTML(selectedProduct, selectedSize);
