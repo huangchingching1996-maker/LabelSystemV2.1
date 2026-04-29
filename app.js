@@ -138,7 +138,8 @@ function selectProduct(id) {
   selectedProduct = products.find(p => p.商品編號 === id) || null;
   if(selectedProduct) {
     const def = selectedProduct.預設標籤;
-    if(def === '小標') selectSize('small');
+    const hasIngredients = !!(selectedProduct.成分 && selectedProduct.成分.trim());
+    if(def === '小標' || (!def && !hasIngredients)) selectSize('small');
     else selectSize('large');
   }
   renderProducts();
