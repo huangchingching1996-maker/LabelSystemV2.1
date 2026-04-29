@@ -18,6 +18,7 @@ function renderAdminTable() {
       ${td(p.商品編號, true)}
       ${td(p.商品名稱, false, true)}
       ${td(p['葷素別'])}
+      ${td(p['預設標籤'] || '大標')}
       <td><span class="tag tag-cat">${p.類別||''}</span></td>
       ${td(p.條碼格式, true)}
       ${td(p.條碼內容, true)}

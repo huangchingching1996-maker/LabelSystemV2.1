@@ -136,6 +136,11 @@ function renderProducts() {
 
 function selectProduct(id) {
   selectedProduct = products.find(p => p.商品編號 === id) || null;
+  if(selectedProduct) {
+    const def = selectedProduct.預設標籤;
+    if(def === '小標') selectSize('small');
+    else selectSize('large');
+  }
   renderProducts();
   renderPrintPanel();
 }
