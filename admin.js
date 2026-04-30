@@ -18,10 +18,8 @@ function renderAdminTable() {
       ${td(p.商品編號, true)}
       ${td(p.商品名稱, false, true)}
       ${td(p['葷素別'])}
-      ${td(p['預設標籤'] || (p.成分 && p.成分.trim() ? '大標' : '小標'))}
       <td><span class="tag tag-cat">${p.類別||''}</span></td>
-      ${td(p.條碼格式, true)}
-      ${td(p.條碼內容, true)}
+      ${td(p['預設標籤']||'')}
       ${td(p.保存天數)}
       ${td(p['容量'])}
       ${td(p.成分, false, false, true)}
@@ -49,17 +47,25 @@ function renderAdminTable() {
       ${td(p['鈉(每100克)'])}
       <td style="white-space:nowrap">
         <button class="edit-btn" onclick="openEditModal(${realIdx})">編輯</button>
-        <button class="edit-btn" style="margin-left:6px;background:#DBEAFE;color:#1D4ED8;border-color:#BFDBFE" onclick="copyProduct(${realIdx})">複製</button>
+        <button class="edit-btn" style="margin-left:6px;background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE" onclick="duplicateProduct(${realIdx})">複製</button>
         <button class="edit-btn" style="margin-left:6px;background:#FEE2E2;color:#B91C1C;border-color:#FECACA" onclick="openDeleteModal(${realIdx})">刪除</button>
       </td>
     </tr>`;
   }).join('');
 }
 
+// ── Duplicate ──
+function duplicateProduct(idx) {
+  const nextId = products.length ? Math.max(...products.map(p => p.商品編號)) + 1 : 1;
+  const copy = Object.assign({}, products[idx], { 商品名稱: products[idx].商品名稱 + ' (副本)', 商品編號: nextId });
+  editIdx = -1;
+  _openModalWith('複製商品', copy);
+}
+
 // ── Add Modal ──
 function openAddModal() {
   const nextId = products.length ? Math.max(...products.map(p => p.商品編號)) + 1 : 1;
-  const blank = { 商品編號: nextId, 條碼格式: 'EAN8', 豬肉原產地: '否' };
+  const blank = { 商品編號: nextId, 豬肉原產地: '否' };
   editIdx = -1;
   _openModalWith('新增商品', blank);
 }

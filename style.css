@@ -761,8 +761,8 @@ body {
 
 /* ── Label base ── */
 .label-large {
-  width: 208px;
-  height: 208px;
+  width: 189px;
+  height: 132px;
   padding: 6px;
   font-family: 'Noto Sans TC', sans-serif;
   display: flex;
@@ -823,7 +823,7 @@ body {
   margin-top: 1px;
 }
 
-/* ── Large label 50x50mm = 189x189px ── */
+/* ── Large label 50x35mm = 189x132px ── */
 .label-large {
   font-family: 'Noto Sans TC', sans-serif;
   display: flex;
@@ -832,13 +832,10 @@ body {
   box-sizing: border-box;
 }
 .ll-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
   margin-bottom: 2px;
 }
-.ll-name { font-size: 13px; font-weight: 400; color: #000; line-height: 1.2; }
-.ll-sub  { font-size: 10px; color: #000; font-weight: 400; }
+.ll-name { font-size: 11px; font-weight: 400; color: #000; line-height: 1.2; }
+.ll-sub  { font-size: 9px; color: #000; font-weight: 400; }
 .ll-body { display: flex; gap: 3px; flex: 1; min-height: 0; overflow: hidden; }
 
 /* Left column */
@@ -848,14 +845,14 @@ body {
   flex-direction: column;
   font-size: 8px;
   color: #000;
-  line-height: 1.25;
+  line-height: 1.2;
   min-width: 0;
   overflow: hidden;
 }
-.ll-left .ll-row { display: flex; flex-wrap: wrap; min-width: 0; }
+.ll-left .ll-row { display: flex; min-width: 0; }
 .ll-left .ll-label { font-weight: 400; white-space: nowrap; flex-shrink: 0; }
 .ll-left .ll-val { word-break: break-all; min-width: 0; flex: 1; }
-.ll-divider { border: none; border-top: 0.5px solid #000; margin: 2px 0; }
+.ll-divider { border: none; border-top: 0.5px solid #000; margin: 1px 0; }
 
 /* Right column — nutrition */
 .ll-right {
@@ -872,17 +869,17 @@ body {
   min-height: 0;
 }
 .ll-nt-title {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 400;
   text-align: center;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   padding: 1px 2px;
   border-bottom: 1px solid #000;
 }
 .ll-nt-serving {
   font-size: 8px;
   padding: 1px 3px;
-  line-height: 1.35;
+  line-height: 1.15;
   border-bottom: 1px solid #000;
   white-space: nowrap;
 }
@@ -893,10 +890,10 @@ body {
   table-layout: fixed;
 }
 .ll-nt-table th:nth-child(1),
-.ll-nt-table td:nth-child(1) { width: 42px; }
+.ll-nt-table td:nth-child(1) { width: 44px; }
 .ll-nt-table th:nth-child(2),
-.ll-nt-table td:nth-child(2) { width: 35px; }
-/* nth-child(3) gets remaining ~39px automatically */
+.ll-nt-table td:nth-child(2) { width: 30px; }
+/* nth-child(3) gets remaining width automatically */
 .ll-nt-table tr { border-bottom: none; }
 .ll-nt-table .nt-header-row { border-bottom: 0.5px solid #000; }
 .ll-nt-table th {
@@ -904,19 +901,19 @@ body {
   font-weight: 400;
   text-align: center;
   padding: 0.5px 1px;
-  line-height: 1.25;
+  line-height: 1.15;
   white-space: nowrap;
 }
 .ll-nt-table .nt-header-row { border-bottom: 0.5px solid #000; }
 .ll-nt-table td {
   font-size: 8px;
-  padding: 0.5px 1px;
-  line-height: 1.25;
+  padding: 0.2px 1px;
+  line-height: 1.15;
   vertical-align: middle;
   white-space: nowrap;
 }
 .ll-nt-table .nt-label { font-weight: 400; white-space: nowrap; }
-.ll-nt-table .nt-indent { padding-left: 6px; font-weight: 400; }
+.ll-nt-table .nt-indent { padding-left: 5px; font-weight: 400; }
 .ll-nt-table .nt-val { text-align: right; white-space: nowrap; }
 
 /* Barcode — below nutrition box, no surrounding border */

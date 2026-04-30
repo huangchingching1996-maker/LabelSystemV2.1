@@ -54,17 +54,8 @@ function buildLabelHTML(product, size) {
   const showExpiry     = document.getElementById('show-expiry')?.checked ?? true;
   const showShelfLife  = document.getElementById('show-shelf-life')?.checked ?? true;
 
-  const isEAN13 = p.條碼格式 === 'EAN13';
-
   // ── Small label: 30×25mm ──
   if(size === 'small') {
-    let bcCode, svg;
-    bcCode = (p.條碼內容||'').toString();
-    if(isEAN13) {
-      svg = ean13SVG(bcCode, 115, 20);
-    } else {
-      svg = ean8SVG(bcCode, 100, 20);
-    }
     const expiry = expiryDate(p.保存天數);
     return `<div class="label-small">
       <div class="sl-text">
@@ -75,21 +66,10 @@ function buildLabelHTML(product, size) {
         ${showExpiry ? `<div class="sl-info">有效日期:${expiry}</div>` : `<div class="sl-info"></div>`}
         ${p.豬肉原產地==='是' ? `<div class="sl-info">豬肉原料原產地:臺灣</div>` : ''}
       </div>
-      <div class="sl-barcode-wrap">
-        ${svg}
-        <div class="sl-barcode-num">${bcCode}</div>
-      </div>
     </div>`;
   }
 
-  // ── Large label: 55×55mm = 208×208px ──
-  let bcCodeL, svgL;
-  bcCodeL = (p.條碼內容||'').toString();
-  if(isEAN13) {
-    svgL = ean13SVG(bcCodeL, 108, 14);
-  } else {
-    svgL = ean8SVG(bcCodeL, 108, 14);
-  }
+  // ── Large label: 50×35mm = 189×132px ──
   const expiryL = expiryDate(p.保存天數);
 
   const ntRows = [
@@ -116,10 +96,9 @@ function buildLabelHTML(product, size) {
 
   const notes = p.豬肉原產地 === '是' ? '豬肉原料原產地:臺灣' : '';
 
-  return `<div class="label-large" style="width:208px;height:208px;padding:18px 4px 0 7px;">
+  return `<div class="label-large" style="width:189px;height:132px;padding:6px 4px 2px 5px;">
     <div class="ll-header">
-      <div class="ll-name">${p.商品名稱}</div>
-      <div class="ll-sub">${p['葷素別']||''}</div>
+      <div class="ll-name">${p.商品名稱}${p['葷素別'] ? `<span class="ll-sub"> ${p['葷素別']}</span>` : ''}</div>
     </div>
     <div class="ll-body">
       <div class="ll-left">
@@ -136,8 +115,7 @@ function buildLabelHTML(product, size) {
         <div class="ll-nt-box">
           <div class="ll-nt-title">營 養 標 示</div>
           <div class="ll-nt-serving">
-            每一份量 ${p['每份重量(公克)']||''} 公克<br>
-            本包裝含 ${p['本包裝含幾份']||''} 份
+            每份 ${p['每份重量(公克)']||''} 公克&nbsp;&nbsp;含 ${p['本包裝含幾份']||''} 份
           </div>
           <table class="ll-nt-table">
             <tr class="nt-header-row">
@@ -147,10 +125,6 @@ function buildLabelHTML(product, size) {
             </tr>
             ${ntTableRows}
           </table>
-        </div>
-        <div class="ll-barcode-wrap">
-          ${svgL}
-          <div class="ll-barcode-num">${bcCodeL}</div>
         </div>
       </div>
     </div>

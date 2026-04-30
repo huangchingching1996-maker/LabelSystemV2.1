@@ -34,8 +34,7 @@ function init() {
   products = saved ? JSON.parse(saved) : BUILTIN;
   let migrated = false;
   products.forEach(p => {
-    if(p.條碼格式 !== 'EAN8' && p.條碼格式 !== 'EAN13') { p.條碼格式 = 'EAN8'; migrated = true; }
-    if('商品名稱(副)' in p) { p['葷素別'] = p['商品名稱(副)']; delete p['商品名稱(副)']; migrated = true; }
+if('商品名稱(副)' in p) { p['葷素別'] = p['商品名稱(副)']; delete p['商品名稱(副)']; migrated = true; }
     if('現行單位' in p) { delete p['現行單位']; migrated = true; }
     if('淨重(g)' in p) { p['容量'] = p['淨重(g)']; delete p['淨重(g)']; migrated = true; }
   });
@@ -106,8 +105,7 @@ function getFilteredProducts() {
     if (!q) return catOk;
     const name    = (p.商品名稱 || '').toLowerCase();
     const code    = String(p.商品編號 || '');
-    const barcode = String(p.條碼內容 || '');
-    return catOk && (name.includes(q) || code.includes(q) || barcode.includes(q));
+    return catOk && (name.includes(q) || code.includes(q));
   });
 }
 
@@ -159,7 +157,7 @@ function renderPrintPanel() {
   info.innerHTML = `
     <div class="name">${p.商品名稱}</div>
     ${p['葷素別'] ? `<div class="sub">${p['葷素別']}</div>` : ''}
-    <div class="barcode">${p.條碼內容 || ''} · #${p.商品編號}</div>
+    <div class="barcode">#${p.商品編號}</div>
   `;
   printBtn.disabled = false;
 }
