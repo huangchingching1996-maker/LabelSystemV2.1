@@ -121,13 +121,13 @@ if (document.readyState === 'loading') {
 // This guarantees the printed image matches the on-screen preview exactly.
 async function renderLabelToBase64(labelHTML, size) {
   const isSmall = size === 'small';
-  const w = isSmall ? 132 : 208;
-  const h = isSmall ? 94  : 208;
+  const w = isSmall ? 132 : 189;
+  const h = isSmall ? 94  : 132;
 
     // Target: exactly 203 DPI dot count so QZ sends 1px = 1 dot (no scaling).
   // Supersampling at 2× then downsampling gives smoother greyscale values
   // before the B&W threshold, producing sharper edges than rendering at 1×.
-  const mmW  = isSmall ? 35 : 55;
+  const mmW  = isSmall ? 35 : 50;
   const dotW = Math.round(mmW * 203 / 25.4);          // 280 (small) | 440 (large)
   const dotH = Math.round(h * (dotW / w));
   const scale = (dotW / w) * 2;                        // 2× supersampling ≈ 4.24
@@ -207,10 +207,9 @@ async function printWithQZ(size, labelHTML, qty) {
 
   const isSmall = size === 'small';
   const config = qz.configs.create(printerName, {
-    size:    isSmall ? { width: 35, height: 25 } : { width: 55, height: 56.5 },
+    size:    isSmall ? { width: 35, height: 25 } : { width: 50, height: 35 },
     units:   'mm',
-    margins: isSmall ? { top: 0,   right: 0, bottom: 0, left: 0 }
-                     : { top: 1.5, right: 0, bottom: 0, left: 0 },
+    margins: { top: 0, right: 0, bottom: 0, left: 0 },
     copies:    qty,
   });
 

@@ -28,7 +28,10 @@
       <div class="product-panel">
         <div class="cat-panel" id="cat-panel"></div>
         <div class="search-bar">
-          <input class="search-input" id="search-input" type="text" placeholder="搜尋商品名稱或編號..." oninput="renderProducts()">
+          <div class="search-wrap">
+            <input class="search-input" id="search-input" type="text" placeholder="搜尋商品名稱或編號..." oninput="renderProducts();toggleSearchClear()">
+            <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</button>
+          </div>
         </div>
         <div class="product-grid" id="product-grid"></div>
       </div>
@@ -70,7 +73,7 @@
             <div class="label-type-grid">
               <button class="label-type-btn active" id="btn-large" onclick="selectSize('large')">
                 <span class="size-name">大標</span>
-                <span class="size-dim">55 × 55 mm</span>
+                <span class="size-dim">50 × 35 mm</span>
               </button>
               <button class="label-type-btn" id="btn-small" onclick="selectSize('small')">
                 <span class="size-name">小標</span>
@@ -149,7 +152,7 @@
               <th>類別</th>
               <th>預設標籤</th>
               <th>保存天數</th>
-              <th>容量</th>
+              <th>淨重</th>
               <th>成分</th>
               <th>過敏原</th>
               <th>保存方式</th>
@@ -165,14 +168,14 @@
               <th>糖(每份)</th>
               <th>鈉(每份)</th>
               <th>每包裝份數</th>
-              <th>熱量(每100克)</th>
-              <th>蛋白質(每100克)</th>
-              <th>脂肪(每100克)</th>
-              <th>飽和脂肪(每100克)</th>
-              <th>反式脂肪(每100克)</th>
-              <th>碳水化合物(每100克)</th>
-              <th>糖(每100克)</th>
-              <th>鈉(每100克)</th>
+              <th>熱量(每100公克)</th>
+              <th>蛋白質(每100公克)</th>
+              <th>脂肪(每100公克)</th>
+              <th>飽和脂肪(每100公克)</th>
+              <th>反式脂肪(每100公克)</th>
+              <th>碳水化合物(每100公克)</th>
+              <th>糖(每100公克)</th>
+              <th>鈉(每100公克)</th>
               <th></th>
             </tr>
           </thead>

@@ -81,6 +81,7 @@ function renderCats() {
     if (cat === '全部')    count = products.length;
     else if (cat === '常用') count = products.filter(p => favs.has(p.商品編號)).length;
     else                   count = products.filter(p => p.類別 === cat).length;
+    if (count === 0 && cat !== '全部' && cat !== '常用') return '';
     return `<button class="cat-btn ${cat===selectedCat?'active':''}" data-cat="${cat}" onclick="selectCat(this.dataset.cat)">
       ${cat} <span class="cat-count">${count}</span>
     </button>`;
@@ -173,4 +174,15 @@ function adjustQty(d) {
   const input = document.getElementById('qty-input');
   const v = Math.max(1, Math.min(999, (parseInt(input.value)||1) + d));
   input.value = v;
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').style.display = 'none';
+  renderProducts();
+}
+
+function toggleSearchClear() {
+  const val = document.getElementById('search-input').value;
+  document.getElementById('search-clear').style.display = val ? 'block' : 'none';
 }

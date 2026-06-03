@@ -4,7 +4,7 @@ const MM_TO_PX = 3.7795;
 
 const DEFAULT_SETTINGS = {
   large: {
-    width: 55, height: 55,
+    width: 50, height: 35,
     fontSize: { name: 16, sub: 10, body: 8, barcode: 8 },
     show: {
       葷素別: true, 條碼: true, 營養標示: true,

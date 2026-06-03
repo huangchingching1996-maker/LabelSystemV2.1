@@ -1,6 +1,6 @@
 const PX_PER_MM = 96 / 25.4;
 const LABEL_MM = {
-  large: { w: 55, h: 55 },
+  large: { w: 50, h: 35 },
   small: { w: 35, h: 25 },
 };
 
@@ -13,9 +13,10 @@ function doPreview() {
 
   const labelPxW = mm.w * PX_PER_MM;
   const labelPxH = mm.h * PX_PER_MM;
-  // Large label gets more preview space; small label is compact
-  const maxW  = Math.min(window.innerWidth * 0.78, selectedSize === 'large' ? 520 : 280);
-  const maxH  = window.innerHeight * 0.5;
+  // preview-container is 420px wide (95vw on small screens), with 40px horizontal padding
+  const availW = Math.min(420, window.innerWidth * 0.95) - 40;
+  const maxW   = selectedSize === 'large' ? availW : Math.min(availW, 280);
+  const maxH   = window.innerHeight * 0.5;
   const scale = Math.min(maxW / labelPxW, maxH / labelPxH, 2.5);
 
   const scaledW = Math.round(labelPxW * scale);
@@ -58,7 +59,7 @@ function setPaperStyle() {
   let s = document.getElementById('_page_style');
   if(!s) { s = document.createElement('style'); s.id = '_page_style'; document.head.appendChild(s); }
   const orient = (selectedSize === 'small') ? ' landscape' : '';
-  const topBleed = (selectedSize === 'large') ? 1.5 : 0;
+  const topBleed = 0;
   const pageH = mm.h + topBleed;
   const marginTop = topBleed ? `${topBleed}mm` : '0';
   s.textContent = `@media print { @page { size: ${mm.w}mm ${pageH}mm${orient}; margin: ${marginTop} 0 0 0; } }`;

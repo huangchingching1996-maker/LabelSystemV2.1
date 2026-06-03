@@ -96,18 +96,18 @@ function buildLabelHTML(product, size) {
 
   const notes = p.豬肉原產地 === '是' ? '豬肉原料原產地:臺灣' : '';
 
-  return `<div class="label-large" style="width:189px;height:132px;padding:6px 4px 2px 5px;">
+  return `<div class="label-large" style="width:189px;height:132px;">
     <div class="ll-header">
       <div class="ll-name">${p.商品名稱}${p['葷素別'] ? `<span class="ll-sub"> ${p['葷素別']}</span>` : ''}</div>
     </div>
     <div class="ll-body">
       <div class="ll-left">
         ${p.成分 ? `<div class="ll-row" style="display:block"><span class="ll-label">成分:</span><span class="ll-val" style="display:inline">${p.成分}</span></div>` : ''}
-        ${p['容量'] ? `<div class="ll-row"><span class="ll-label">容量:</span><span class="ll-val">${p['容量']} 公克</span></div>` : ''}
+        ${p['容量'] ? `<div class="ll-row"><span class="ll-label">淨重:</span><span class="ll-val">${p['容量']} 公克</span></div>` : ''}
         ${p.過敏原 ? `<div class="ll-row" style="display:block"><span class="ll-label">過敏原:</span><span class="ll-val" style="display:inline">${p.過敏原==='無'?'無':'本產品含有'+p.過敏原.replace(/[、,，]/g,',')}</span></div>` : ''}
         ${showShelfLife ? `<div class="ll-row"><span class="ll-label">保存期限:</span><span class="ll-val">${p.保存天數||''}&nbsp;&nbsp;天</span></div>` : ''}
         ${showExpiry ? `<div class="ll-row" style="flex-wrap:nowrap;white-space:nowrap"><span class="ll-label">有效日期:</span><span class="ll-val">${expiryL}</span></div>` : `<div class="ll-row"></div>`}
-        ${p.保存方式 ? `<div class="ll-row"><span class="ll-label">保存方式:</span><span class="ll-val">${p.保存方式}</span></div>` : ''}
+        ${p.保存方式 ? `<div class="ll-row" style="display:block"><span class="ll-label">保存方式:</span><span class="ll-val" style="display:inline">${p.保存方式}</span></div>` : ''}
         <div class="ll-row"><span class="ll-label">製造商:</span><span class="ll-val">玉珍齋</span></div>
         ${notes ? `<div class="ll-row"><span class="ll-val">${notes}</span></div>` : ''}
       </div>
@@ -115,13 +115,14 @@ function buildLabelHTML(product, size) {
         <div class="ll-nt-box">
           <div class="ll-nt-title">營 養 標 示</div>
           <div class="ll-nt-serving">
-            每份 ${p['每份重量(公克)']||''} 公克&nbsp;&nbsp;含 ${p['本包裝含幾份']||''} 份
+            <div>每一份量 ${p['每份重量(公克)']||''} 公克</div>
+            <div>本包裝含 ${p['本包裝含幾份']||''} 份</div>
           </div>
           <table class="ll-nt-table">
             <tr class="nt-header-row">
               <th></th>
               <th>每份</th>
-              <th>每100克</th>
+              <th>每100公克</th>
             </tr>
             ${ntTableRows}
           </table>
