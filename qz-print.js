@@ -130,7 +130,7 @@ async function renderLabelToBase64(labelHTML, size) {
   const mmW  = isSmall ? 35 : 50;
   const dotW = Math.round(mmW * 203 / 25.4);          // 280 (small) | 440 (large)
   const dotH = Math.round(h * (dotW / w));
-  const scale = (dotW / w) * 2;                        // 2× supersampling ≈ 4.24
+  const scale = (dotW / w) * 4;                        // 4× supersampling ≈ 8.47
 
   const wrap = document.createElement('div');
   // Disable subpixel font rendering so text pixels are harder-edged going in.
