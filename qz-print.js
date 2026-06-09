@@ -171,7 +171,7 @@ async function renderLabelToBase64(labelHTML, size) {
     // Large label: rotate 90° CW so portrait-feed printer prints landscape correctly.
     // rightMargin adds white dots at the physical right edge (= image top after rotation).
     if (!isSmall) {
-      const rightMargin = 24; // ~3mm at 203 DPI
+      const rightMargin = 48; // ~6mm at 203 DPI
       const rot = document.createElement('canvas');
       rot.width  = dotH;
       rot.height = dotW + rightMargin;
@@ -223,7 +223,7 @@ async function printWithQZ(size, labelHTML, qty) {
 
   const isSmall = size === 'small';
   const config = qz.configs.create(printerName, {
-    size:    isSmall ? { width: 35, height: 25 } : { width: 35, height: 53 },
+    size:    isSmall ? { width: 35, height: 25 } : { width: 35, height: 56 },
     units:   'mm',
     margins: { top: 0, right: 0, bottom: 0, left: 0 },
     copies:    qty,
