@@ -168,13 +168,17 @@ async function renderLabelToBase64(labelHTML, size) {
     }
     dsCtx.putImageData(img, 0, 0);
 
-    // Large label: rotate 90° CW so portrait-feed printer prints landscape correctly
+    // Large label: rotate 90° CW so portrait-feed printer prints landscape correctly.
+    // rightMargin adds white dots at the physical right edge (= image top after rotation).
     if (!isSmall) {
+      const rightMargin = 16; // ~2mm at 203 DPI
       const rot = document.createElement('canvas');
       rot.width  = dotH;
-      rot.height = dotW;
+      rot.height = dotW + rightMargin;
       const rCtx = rot.getContext('2d');
-      rCtx.translate(dotH, 0);
+      rCtx.fillStyle = '#ffffff';
+      rCtx.fillRect(0, 0, rot.width, rot.height);
+      rCtx.translate(dotH, rightMargin); // shift content down by margin
       rCtx.rotate(Math.PI / 2);
       rCtx.drawImage(ds, 0, 0);
       return rot.toDataURL('image/png').split(',')[1];
@@ -219,7 +223,7 @@ async function printWithQZ(size, labelHTML, qty) {
 
   const isSmall = size === 'small';
   const config = qz.configs.create(printerName, {
-    size:    isSmall ? { width: 35, height: 25 } : { width: 35, height: 50 },
+    size:    isSmall ? { width: 35, height: 25 } : { width: 35, height: 52 },
     units:   'mm',
     margins: { top: 0, right: 0, bottom: 0, left: 0 },
     copies:    qty,
