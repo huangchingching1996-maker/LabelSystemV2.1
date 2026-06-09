@@ -784,7 +784,7 @@ body {
 .label-large {
   width: 189px;
   height: 132px;
-  padding: 4px 24px 2px 4px;
+  padding: 4px 32px 2px 4px;
   font-family: 'Noto Sans TC', sans-serif;
   display: flex;
   flex-direction: column;
