@@ -784,7 +784,7 @@ body {
 .label-large {
   width: 189px;
   height: 132px;
-  padding: 8px 4px 1px 4px;
+  padding: 10px 4px 1px 4px;
   font-family: 'Noto Sans TC', sans-serif;
   display: flex;
   flex-direction: column;
@@ -859,7 +859,7 @@ body {
   flex-direction: column;
   font-size: 8px;
   color: #000;
-  line-height: 1.1;
+  line-height: 1.0;
   min-width: 0;
   overflow: hidden;
 }
