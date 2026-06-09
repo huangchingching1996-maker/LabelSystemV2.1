@@ -848,7 +848,7 @@ body {
 .ll-header {
   margin-bottom: 1px;
 }
-.ll-name { font-size: 10px; font-weight: 400; color: #000; line-height: 1.1; }
+.ll-name { font-size: 8px; font-weight: 400; color: #000; line-height: 1.1; }
 .ll-sub  { font-size: 9px; color: #000; font-weight: 400; }
 .ll-body { display: flex; gap: 3px; flex: 1; min-height: 0; overflow: hidden; }
 
