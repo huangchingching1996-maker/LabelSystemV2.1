@@ -169,7 +169,8 @@ async function renderLabelToBase64(labelHTML, size) {
     dsCtx.putImageData(img, 0, 0);
 
     // Large label: rotate 90° CW so portrait-feed printer prints landscape correctly.
-    // rightMargin adds white dots at the physical right edge (= image top after rotation).
+    // After CW rotation: HTML-left → image-bottom → physical right edge (reading orientation).
+    // rightMargin adds white dots at image BOTTOM = physical right edge.
     if (!isSmall) {
       const rightMargin = 48; // ~6mm at 203 DPI
       const rot = document.createElement('canvas');
@@ -178,7 +179,7 @@ async function renderLabelToBase64(labelHTML, size) {
       const rCtx = rot.getContext('2d');
       rCtx.fillStyle = '#ffffff';
       rCtx.fillRect(0, 0, rot.width, rot.height);
-      rCtx.translate(dotH, rightMargin); // shift content down by margin
+      rCtx.translate(dotH, 0); // content starts at top, white margin at bottom
       rCtx.rotate(Math.PI / 2);
       rCtx.drawImage(ds, 0, 0);
       return rot.toDataURL('image/png').split(',')[1];
